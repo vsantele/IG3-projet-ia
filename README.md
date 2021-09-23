@@ -14,3 +14,6 @@ Activate de venv with `venv\Scripts\activate`
 Run `pip install -r requirements.txt`
 
 Run `flask run`
+
+## Initialize Database
+Run `flask init-db`
