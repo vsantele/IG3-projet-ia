@@ -10,3 +10,4 @@ def init_db():
     # TODO Add Models
     db.session.commit()
     lg.warning('Databae initialized!')
+    
