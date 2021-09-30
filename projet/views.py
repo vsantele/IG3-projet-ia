@@ -6,4 +6,5 @@ app.config.from_object("config")
 
 @app.route("/")
 def index():
+    """Root route"""
     return render_template("index.html")

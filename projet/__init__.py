@@ -7,4 +7,5 @@ models.db.init_app(app)
 
 @app.cli.command("init_db")
 def init_db():
+    """Command to initialize database with flask"""
     models.init_db()

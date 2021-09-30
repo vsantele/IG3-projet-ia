@@ -6,6 +6,7 @@ db = SQLAlchemy(app)
 
 
 def init_db():
+    """Initialize Database"""
     db.drop_all()
     db.create_all()
     # TODO Add Models
