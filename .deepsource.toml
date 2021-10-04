@@ -3,6 +3,10 @@ version = 1
 test_patterns = ["projet/test/*"]
 
 [[analyzers]]
+name = "javascript"
+enabled = true
+
+[[analyzers]]
 name = "python"
 enabled = true
 
@@ -11,4 +15,8 @@ enabled = true
 
 [[transformers]]
 name = "black"
+enabled = true
+
+[[transformers]]
+name = "prettier"
 enabled = true
