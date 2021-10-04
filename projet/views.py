@@ -10,7 +10,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/game", methods=["POST"])
+@app.route("/game", methods=["GET"])
 def game_create():
     """Create game"""
     # TODO: add game creation + redirect /game/<game_id>
