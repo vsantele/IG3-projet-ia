@@ -8,7 +8,12 @@
   </head>
   <body>
     <p>Hello World (projet de groupe ^^)</p>
-    <button id="createGameBtn">Créer une partie</button>
+    <button
+      id="createGameBtn"
+      onclick="window.location.href='{{url_for('game_create')}}'"
+    >
+      Créer une partie
+    </button>
     <script type="text/javascript" src="/static/js/index.js"></script>
   </body>
 </html>

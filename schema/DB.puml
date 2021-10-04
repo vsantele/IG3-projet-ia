@@ -1,0 +1,24 @@
+@startuml
+
+entity Game{
+    gameId
+    date
+}
+entity User{
+    userId 
+    userName 
+    userPassword
+}
+entity State{
+    board 
+    posPlayer1X
+    posPlayer1Y
+    posPlayer2X
+    posPlayer2Y
+}
+
+Game }o--|| User
+Game }o--|| State
+
+
+@enduml
