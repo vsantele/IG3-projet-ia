@@ -19,13 +19,14 @@ async function createGame() {
     },
     body: JSON.stringify({ playerId }),
   });
-  const body = await response.json();
   if (!response.ok) {
+    const body = await response.json();
     console.error(body);
     throw new Error("Failed to create game");
   }
-
-  console.log(body);
+  if (response.redirected) {
+    window.location.href = response.url;
+  }
 }
 
 window.onload = function () {
