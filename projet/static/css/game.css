@@ -9,3 +9,11 @@ td {
   width: 5em;
   height: 5em;
 }
+
+.player1 {
+  background-color: red;
+}
+
+.player2 {
+  background-color: blue;
+}
