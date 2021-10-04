@@ -1,0 +1,33 @@
+@startuml userInteraction
+actor Client as client
+participant Server as server
+database Database as db
+participant IA as ia
+
+client -> server : GET /
+activate server
+return index.html
+client -> server : POST game {playerID}
+note left
+  TODO: 
+  Add login
+end note
+activate server
+server -> db : Create game
+activate db
+return gameID
+return Redirect /game/{gameID} {gameState} 
+== Game ==
+client -> server : POST game/<gameID> {playerID, move}
+activate server
+server -> db : Create move {playerID, move}
+server -> db : Get state {gameID}
+activate db
+return gameState
+server -> ia : get_move(gameState)
+activate ia
+return move
+server -> db : Create move {IA, move}
+server --> client : {gameState}
+
+@enduml
