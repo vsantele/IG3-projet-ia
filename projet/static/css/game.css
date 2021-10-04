@@ -6,8 +6,11 @@ table {
 td {
   border: 1px solid black;
   padding: 0px;
-  width: 5em;
-  height: 5em;
+  width: 5rem;
+  height: 5rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: 48px;
 }
 
 .player1 {
@@ -15,5 +18,5 @@ td {
 }
 
 .player2 {
-  background-color: blue;
+  background-color: rgb(21, 105, 231);
 }
