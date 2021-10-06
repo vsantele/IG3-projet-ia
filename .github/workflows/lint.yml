@@ -1,0 +1,24 @@
+name: Lint
+
+on:
+  - push
+  - workflow_dispatch
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Install Python dependencies
+        run: |
+          pip install pipenv
+          pipenv install --deploy --dev --system
+      - uses: wearerequired/lint-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          black: true
+          auto_fix: true
+          commit_message: "Lint"
+          git_name: "Black"
+          git_email: "black@wolfvic.wtf"
