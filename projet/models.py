@@ -17,7 +17,7 @@ def init_db():
     db.session.add(joachim)
     game1 = Game(1, "2021-10-01", victor, joachim)
     db.session.add(game1)
-    db.session.add(State(1, game1, victor, joachim, 0, 0, 5, 5))
+    db.session.add(State(1, game1, 0, 0, 4, 4))
 
     db.session.commit()
     lg.warning("Database initialized !")
