@@ -7,7 +7,7 @@ entity Game{
 entity User{
     userId 
     userName 
-    userPassword
+    userPassword 
 }
 entity State{
     board 
