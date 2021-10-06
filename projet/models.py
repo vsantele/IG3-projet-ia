@@ -63,7 +63,15 @@ class State(db.model):
 
     game_id_fk = db.Column(db.Integer, db.ForeignKey("game_id"), nullable=False)
 
-    def __init__(self, state_id, board, pos_player1_X, pos_player1_Y, pos_player2_X, pos_player2_Y):
+    def __init__(
+        self,
+        state_id,
+        board,
+        pos_player1_X,
+        pos_player1_Y,
+        pos_player2_X,
+        pos_player2_Y,
+    ):
         self.state_id = state_id
         self.board = board
         self.pos_player1_X = pos_player1_X
