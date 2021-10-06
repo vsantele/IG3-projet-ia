@@ -18,7 +18,7 @@ entity State{
 }
 
 Game }o--|| User
-Game }o--|| State
+State }o--|| Game
 
 
 @enduml
