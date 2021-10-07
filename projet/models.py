@@ -31,8 +31,6 @@ class User(db.Model):
 
     game = db.relationship("Game", backref="game", lazy=True)
 
-    
-
 
 class Game(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
@@ -42,8 +40,6 @@ class Game(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user_id"), nullable=False)
 
     state = db.relationship("State", backref="state", lazy=True)
-
-    
 
 
 class State(db.Model):
@@ -55,5 +51,3 @@ class State(db.Model):
     pos_player2_Y = db.Column(db.Integer, nullable=False)
 
     game_id = db.Column(db.Integer, db.ForeignKey("game_id"), nullable=False)
-
-    
