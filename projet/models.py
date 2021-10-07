@@ -11,14 +11,6 @@ def init_db():
     db.create_all()
     # TODO Add Models
 
-    victor = User(user_id=1, user_name="Victor", user_password="victorIA")
-    joachim = User(user_id=2, user_name="Joachim", user_password="joachimIA")
-    db.session.add(victor)
-    db.session.add(joachim)
-    game1 = Game(1, "2021-10-01", victor, joachim)
-    db.session.add(game1)
-    db.session.add(State(1, game1, 0, 0, 4, 4))
-
     db.session.commit()
     lg.warning("Database initialized !")
 
