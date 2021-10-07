@@ -36,8 +36,10 @@ class Game(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("user_id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user_id"), nullable=False)
+    user_id_1 = db.Column(db.Integer, db.ForeignKey("user_id"), nullable=False)
+    user_id_2 = db.Column(db.Integer, db.ForeignKey("user_id"), nullable=False)
+
+    vs_ai = db.Column(db.Boolean, default=True)
 
     state = db.relationship("State", backref="state", lazy=True)
 
