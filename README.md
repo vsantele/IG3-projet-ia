@@ -18,8 +18,10 @@ Activate de venv with `venv\Scripts\activate` on Windows and `source venv/bin/ac
 
 Run `pip install -r requirements.txt`
 
-Run `flask run`
-
 ## Initialize Database
 
 Run `flask init-db`
+
+## run
+
+Run `flask run` or `py run.py`
