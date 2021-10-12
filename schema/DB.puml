@@ -1,24 +1,35 @@
-@startuml
+@startuml database
+
 
 entity Game{
-    gameId
-    date
-}
-entity User{
-    userId 
-    userName 
-    userPassword 
-}
-entity State{
+    id
+    datetime
     board 
+    playing
     posPlayer1X
     posPlayer1Y
     posPlayer2X
     posPlayer2Y
 }
+note left
+better name 
+for "playing" ?
+endnote
 
-Game }o--|| User
-State }o--|| Game
+entity User{
+    *id 
+    email
+    name 
+    password
+    *isHuman: bool
+}
 
+
+Game }o--|{ User
+note left
+à voir si on garde le
+Many To Many
+pour les relations
+end note
 
 @enduml

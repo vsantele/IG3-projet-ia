@@ -8,12 +8,23 @@
   </head>
   <body>
     <p>Hello World (projet de groupe ^^)</p>
+    {% if not current_user.is_authenticated %}
+    <button onclick="window.location.href='{{url_for("auth.signup")}}'">Signup</button>
+    <button onclick="window.location.href='{{url_for("auth.login")}}'">Login</button>
+    {% endif %}
+    {% if current_user.is_authenticated %}
     <button
       id="createGameBtn"
-      onclick="window.location.href='{{url_for('game_create')}}'"
+      onclick="window.location.href='{{url_for("game.game_create")}}'"
     >
       Créer une partie
     </button>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('auth.logout') }}">
+        Logout
+    </a>
+    {% endif %}
     <script type="text/javascript" src="/static/js/index.js"></script>
   </body>
 </html>

@@ -20,14 +20,14 @@ return Redirect /game/{gameID} {gameState}
 == Game ==
 client -> server : POST game/<gameID> {playerID, move}
 activate server
-server -> db : Create move {playerID, move}
+server -> db : update board {playerID, move}
 server -> db : Get state {gameID}
 activate db
 return gameState
 server -> ia : get_move(gameState)
 activate ia
 return move
-server -> db : Create move {IA, move}
+server -> db : update board {playerID, move}
 server --> client : {gameState}
 
 @enduml
