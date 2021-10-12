@@ -24,7 +24,6 @@ def game(game_id):
     Args:
         game_id (int): the ID of the game
     """
-
     if request.method == "POST":
         # TODO: handle move
         pass
