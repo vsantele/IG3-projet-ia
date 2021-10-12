@@ -1,6 +1,8 @@
 from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from projet.utils import is_email_valid
 from . import app
 
 from .models import db, User
@@ -54,7 +56,12 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        remember = True if request.form.get("remember") else False
+        remember = bool(request.form.get("remember"))
+
+        if email is None or not is_email_valid(email):
+            flash("Email is not valid.")
+            return redirect(url_for("auth.login"))
+        email = email.lower().strip()
 
         user = User.query.filter(User.email == email).first()
 
@@ -75,8 +82,8 @@ def signup():
         name = request.form.get("name")
         password = request.form.get("password")
 
-        if email is None:
-            flash("Email is required")
+        if email is None or not is_email_valid(email):
+            flash("Email is not valid")
             return redirect(url_for("auth.signup"))
         if name is None:
             flash("Name is required")
@@ -84,6 +91,8 @@ def signup():
         if password is None:
             flash("Password is required")
             return redirect(url_for("auth.signup"))
+
+        email = email.lower().strip()
 
         user = User.query.filter_by(email=email).first()
 
