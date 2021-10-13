@@ -6,7 +6,7 @@ Projet IA Henallux Bloc 3 Option Data Science
 
 ## Setup Dotenv file
 
-Rename `sample.env`to `.env`
+Create a file `.env` and add all environment variables that are in `sample.env` to it with valid value.
 
 ## Setup a virtual environment (Optional)
 
