@@ -1,16 +1,17 @@
-{% extends 'base.html' %}
-{% from 'board.html' import board %}
-
-{% block css %}
-<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/game.css')}}" />
-{% endblock %}
-{%block content %}
+{% extends 'base.html' %} {% from 'board.html' import board %} {% block css %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{url_for('static', filename='css/game.css')}}"
+/>
+{% endblock %} {%block content %}
 <div>
-  <h1 class="title">{%block title %} Partie #{{ game_state.game_id }}{%endblock %}</h1>
+  <h1 class="title">
+    {%block title %} Partie #{{ game_state.game_id }}{%endblock %}
+  </h1>
   {{board(5)}}
 </div>
-{% endblock %}
-{% block js %}
+{% endblock %} {% block js %}
 <script src="{{url_for('static', filename='js/game.js')}}"></script>
 <script>
   const gameID = '{{game_state.game_id}}';
@@ -19,6 +20,5 @@
   window.onload = function() {
     setBoard({board, players});
   }
-  
 </script>
 {% endblock %}

@@ -1,27 +1,35 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="container">
   <h1 class="title">{% block title %}SplatAI {% endblock %}</h1>
   {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="notification is-danger">{{ messages[0] }}</div>
-    {% endif %} {% endwith %}
-  {% if current_user.is_authenticated %}
-  <a class="button is-primary is-large" id="createGameBtn" href='{{url_for("game.game_create")}}'>
+  <div class="notification is-danger">{{ messages[0] }}</div>
+  {% endif %} {% endwith %} {% if current_user.is_authenticated %}
+  <a
+    class="button is-primary is-large"
+    id="createGameBtn"
+    href='{{url_for("game.game_create")}}'
+  >
     Créer une partie
   </a>
   {% else %}
   <p>Vous devez être connecter pour pouvoir jouer</p>
-  <a class="button is-primary" id="createGameBtn" href='{{url_for("auth.signup")}}'>
+  <a
+    class="button is-primary"
+    id="createGameBtn"
+    href='{{url_for("auth.signup")}}'
+  >
     SignUp
   </a>
-  <a class="button is-primary" id="createGameBtn" href='{{url_for("auth.login")}}'>
+  <a
+    class="button is-primary"
+    id="createGameBtn"
+    href='{{url_for("auth.login")}}'
+  >
     Login
   </a>
   {% endif %}
   <div class="content">
-    <h2 class="title"> Principe du jeu </h2>
+    <h2 class="title">Principe du jeu</h2>
   </div>
 </div>
 {% endblock %}
-
