@@ -2,6 +2,8 @@ version = 1
 
 test_patterns = ["projet/test/*"]
 
+exclude_patterns = ["projet/templates/*.html"]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
