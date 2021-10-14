@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 import logging as lg
 from datetime import date
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 
@@ -10,6 +11,13 @@ def init_db():
     """Initialize Database"""
     db.drop_all()
     db.create_all()
+
+    # Add test user
+    user = User(
+        name="test", email="test@test.be", password=generate_password_hash("test")
+    )
+    db.session.add(user)
+
     db.session.commit()
     lg.warning("Database initialized !")
 
