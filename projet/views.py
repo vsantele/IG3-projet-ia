@@ -3,9 +3,8 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from projet.utils import is_email_valid
-from . import app
 
-from .models import db, User
+from .models import db, User, Game
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -25,7 +24,10 @@ def index():
 def game_create():
     """Create game"""
     # TODO: add game creation + redirect /game/<game_id>
-    return redirect(url_for("game.game", game_id=42))
+    game = Game(user_id_1=current_user.id)
+    db.session.add(game)
+    db.session.commit()
+    return redirect(url_for("game.game", game_id=game.id))
 
 
 @game_bp.route("/game/<int:game_id>", methods=["GET", "POST"])
@@ -36,13 +38,19 @@ def game(game_id):
     Args:
         game_id (int): the ID of the game
     """
+    game = Game.query.get(game_id)
+    if game is None:
+        flash("Game not found")
+        return redirect(url_for("game.index"))
     if request.method == "POST":
         # TODO: handle move
         pass
     return render_template(
         "game.html",
         game_state={
-            "game_id": game_id,
+            "game_id": game.id,
+            "board": game.board,
+            "players": [[0, 0], [4, 4]],
         },
         name=current_user.name,
     )
