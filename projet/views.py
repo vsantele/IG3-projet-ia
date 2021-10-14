@@ -42,6 +42,9 @@ def game(game_id):
     if game is None:
         flash("Game not found")
         return redirect(url_for("game.index"))
+    if game.user_id_1 != current_user.id:
+        flash("You are not allowed to join this game.")
+        return redirect(url_for("game.index"))
     if request.method == "POST":
         # TODO: handle move
         pass
