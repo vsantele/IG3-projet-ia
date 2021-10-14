@@ -6,9 +6,23 @@ function getCase(x, y) {
   return document.getElementById(`boardcase-${x}-${y}`);
 }
 
+function parseBoard(stringBoard) {
+  const board = []
+  for (let x = 0; x < 5; x++) {
+    const row = []
+    for (let y = 0; y < 5; y++) {
+      row.push(parseInt(stringBoard[x * 5 + y],10));
+    }
+    board.push(row);
+  }
+  return board;
+}
+
 function setBoard({ board, players }) {
+  console.log('board :>> ', board);
   board.forEach((row, x) => {
     row.forEach((cell, y) => {
+      console.log('x, y :>> ', x, y);
       const boardCase = getCase(x, y);
       boardCase.innerText = "";
       switch (cell) {
@@ -28,13 +42,13 @@ function setBoard({ board, players }) {
       }
     });
   });
-  players.forEach((player, i) => {
-    const boardCase = getCase(player.x, player.y);
+  players.forEach(([x,y], i) => {
+    const boardCase = getCase(x, y);
     boardCase.innerText = i + 1;
   });
 }
 
-function placePlayer(player, { x, y }) {
+function placePlayer(player, [x,y]) {
   const boardCase = getCase(x, y);
   boardCase.innerText = player;
 }
