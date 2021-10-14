@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 import logging as lg
+from datetime import date
 
 db = SQLAlchemy()
 
@@ -25,7 +26,7 @@ class User(UserMixin, db.Model):
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, default=date.today())
 
     # TODO: check how foreign_keys works with sqlalchemy
     user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -37,8 +38,20 @@ class Game(db.Model):
     # user_1 = db.relationship("User", foreign_keys=[user_id_1], backref="user_1")
     # user_2 = db.relationship("User", foreign_keys=[user_id_2], backref="user_2")
 
-    board = db.Column(db.String(256), nullable=False)
-    pos_player1_X = db.Column(db.Integer, nullable=False)
-    pos_player1_Y = db.Column(db.Integer, nullable=False)
-    pos_player2_X = db.Column(db.Integer, nullable=False)
-    pos_player2_Y = db.Column(db.Integer, nullable=False)
+    board = db.Column(
+        db.String(256), nullable=False, default="1000000000000000000000002"
+    )
+    pos_player1_X = db.Column(db.Integer, nullable=False, default=0)
+    pos_player1_Y = db.Column(db.Integer, nullable=False, default=0)
+    pos_player2_X = db.Column(db.Integer, nullable=False, default=4)
+    pos_player2_Y = db.Column(db.Integer, nullable=False, default=4)
+
+    @staticmethod
+    def board_to_string(board):
+        """Convert board to string"""
+        return "".join([str(cell) for row in board for cell in row])
+
+    @property
+    def board_array(self):
+        """Convert board to array"""
+        return [[int(self.board[x * 5 + y]) for y in range(0, 5)] for x in range(0, 5)]
