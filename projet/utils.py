@@ -94,7 +94,7 @@ def find_empty_cell(board, x, y):
 
 def check_around_cells(board, x, y, color):
 
-    is_other_color = list()
+    is_other_color = []
     if x > 0:
         is_other_color.append(check_other_color(board, x - 1, y, color=color))
     if x < 4:
