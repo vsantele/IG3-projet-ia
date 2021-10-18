@@ -5,21 +5,13 @@ entity Game{
     id
     datetime
     board 
-    boardState
+    playerTurn
     posPlayer1X
     posPlayer1Y
     posPlayer2X
     posPlayer2Y
 }
-note left
-better name 
-for "playing" ?
--- 
-joachim : je sais plus ce 
-que c'est sensé représenté
-donc j'ai supposé qu'on parle 
-de l'état du jeu
-endnote
+
 
 entity User{
     *id 
