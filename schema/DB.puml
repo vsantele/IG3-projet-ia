@@ -14,6 +14,9 @@ entity Game{
 note left
 better name 
 for "playing" ?
+-- 
+joachim : je sais plus ce 
+que c'est sensé représenté
 endnote
 
 entity User{
@@ -30,6 +33,12 @@ note left
 à voir si on garde le
 Many To Many
 pour les relations
+--
+joachim :
+oui puisqu'on aura toujours 
+soit 2 joueurs l'un contre l'autre -> 2
+soit 1 joueur contre ia -> 1
+soit 2 ia -> 0
 end note
 
 @enduml
