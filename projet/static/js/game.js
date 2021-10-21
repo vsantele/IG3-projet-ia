@@ -5,7 +5,7 @@ let canSendMovement = true;
 async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
-    const response = await fetch("/game/" + gameID, {
+    const response = await fetch(`/game/${gameID}`, {
       method: "POST",
       body: JSON.stringify({ movement }),
       headers: { "Content-Type": "application/json" },
