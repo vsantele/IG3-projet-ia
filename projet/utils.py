@@ -95,7 +95,18 @@ def find_empty_cell(board: list, x: int, y: int):
 
 
 def check_around_cells(board: list, x: int, y: int, color: int):
+    """Start recursive function to check if there are cells of another color
+    linked to the start cell by empty cells.
 
+    Args:
+        board (list): The board
+        x (int): x coordinate of the cell
+        y (int): y coordinate of the cell
+        color (int): color of the given cell
+
+    Returns:
+        bool: `True` if there are cells of another color, `False` otherwise.
+    """
     is_other_color = []
     if x > 0:
         is_other_color.append(check_other_color(board, x - 1, y, color=color))
@@ -109,6 +120,16 @@ def check_around_cells(board: list, x: int, y: int, color: int):
 
 
 def color_cells(board: list, color: int, cell: int = 0):
+    """Color cells of the board from one color to another.
+
+    Args:
+        board (list): board
+        color (int): final color
+        cell (int, optional): initial color. Defaults to 0.
+
+    Returns:
+        list: the updated board.
+    """
     for x in range(0, 5):
         for y in range(0, 5):
             if board[x][y] == cell:
@@ -117,6 +138,18 @@ def color_cells(board: list, color: int, cell: int = 0):
 
 
 def check_other_color(board: list, x: int, y: int, color: int):
+    """Recursive function to check if there are cells of another color
+    linked to the start cell by empty cells. Mark the cells as checked.
+
+    Args:
+        board (list): board
+        x (int): x coordinate of the cell to check
+        y (int): y coordinate of the cell to check
+        color (int): color of the start cell
+
+    Returns:
+        bool: `True` if there are cells of another color, `False` otherwise.
+    """
     if board[x][y] == color:
         return False
     if (board[x][y] > 0 and board[x][y] != color) or (board[x][y] == -1):
