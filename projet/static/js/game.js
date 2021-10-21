@@ -1,11 +1,28 @@
+let canSendMovement = true;
+
 window.addEventListener("DOMContentLoaded", function () {
   board = parseBoard(boardString);
   setBoard();
   setClickable();
 });
 
-function caseTrigger(movement) {
-  console.log("movement: ", movement);
+async function caseTrigger(movement) {
+  if (canSendMovement) {
+    canSendMovement = false;
+    const response = await fetch("/game/" + gameID, {
+      method: "POST",
+      body: JSON.stringify({ movement: movement }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const body = await response.json();
+    if (response.ok) {
+      board = parseBoard(body.board);
+      players = body.players;
+      setBoard();
+      setClickable();
+    }
+    canSendMovement = true;
+  }
 }
 
 function getCase(x, y) {
