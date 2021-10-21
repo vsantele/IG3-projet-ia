@@ -61,22 +61,22 @@ function setClickable() {
   board.forEach((row, y) => {
     row.forEach((cell, x) => {
       if (cell === 1) {
-        if (x > 0 && board[x - 1][y] === 0) {
+        if (x > 0 && board[x - 1][y] !== 2) {
           const selectedCell = getCase(x - 1, y);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("left"));
         }
-        if (x < 4 && board[x + 1][y] === 0) {
+        if (x < 4 && board[x + 1][y] !== 2) {
           const selectedCell = getCase(x + 1, y);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("right"));
         }
-        if (y > 0 && board[x][y - 1] === 0) {
+        if (y > 0 && board[x][y - 1] !== 2) {
           const selectedCell = getCase(x, y - 1);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("up"));
         }
-        if (y < 4 && board[x][y + 1] === 0) {
+        if (y < 4 && board[x][y + 1] !== 2) {
           const selectedCell = getCase(x, y + 1);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("down"));
@@ -92,31 +92,32 @@ function placePlayer(player, [x, y]) {
 }
 
 document.addEventListener("keydown", (event) => {
+  event.preventDefault();
   const x = players[0][0];
   const y = players[0][1];
   const key = event.code;
   switch (key) {
     case "ArrowLeft":
     case "KeyA":
-      if (x > 0 && board[x - 1][y] === 0) {
+      if (x > 0 && board[x - 1][y] !== 2) {
         caseTrigger("left");
       }
       break;
     case "ArrowRight":
     case "KeyD":
-      if (x < 4 && board[x + 1][y] === 0) {
+      if (x < 4 && board[x + 1][y] !== 2) {
         caseTrigger("right");
       }
       break;
     case "ArrowUp":
     case "KeyW":
-      if (y > 0 && board[0][y - 1] === 0) {
+      if (y > 0 && board[0][y - 1] !== 2) {
         caseTrigger("up");
       }
       break;
     case "ArrowDown":
     case "KeyS":
-      if (y < 4 && board[0][y + 1] === 0) {
+      if (y < 4 && board[0][y + 1] !== 2) {
         caseTrigger("down");
       }
       break;
