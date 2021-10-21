@@ -23,6 +23,15 @@ def init_db():
 
 
 class User(UserMixin, db.Model):
+    """User Model
+
+    Args:
+        email (string): User's email
+        name (string): User's name
+        password (string): hashed User's password
+        is_human (boolean): True if user is admin, False otherwise
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), nullable=False, unique=True)
     name = db.Column(db.String(40), nullable=False)

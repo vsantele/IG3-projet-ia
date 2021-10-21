@@ -22,7 +22,10 @@ def index():
 @game_bp.route("/game", methods=["GET"])
 @login_required
 def game_create():
-    """Create game"""
+    """Create game
+    
+    Auth required
+    """
     new_game = Game(user_id_1=current_user.id)
     db.session.add(new_game)
     db.session.commit()
@@ -33,6 +36,8 @@ def game_create():
 @login_required
 def game(game_id):
     """Send game view and game state + handle move
+
+    Auth required
 
     Args:
         game_id (int): the ID of the game
@@ -63,6 +68,7 @@ def game(game_id):
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Login route"""
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -87,6 +93,7 @@ def login():
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
+    """Signup route"""
     if request.method == "POST":
         email = request.form.get("email")
         name = request.form.get("name")
@@ -126,5 +133,9 @@ def signup():
 @auth_bp.route("/logout")
 @login_required
 def logout():
+    """Logout route
+
+    Auth required
+    """
     logout_user()
     return redirect(url_for("game.index"))
