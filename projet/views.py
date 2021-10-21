@@ -23,7 +23,7 @@ def index():
 @login_required
 def game_create():
     """Create game
-    
+
     Auth required
     """
     new_game = Game(user_id_1=current_user.id)
