@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, flash, redirect, render_template, request, u
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from projet.utils import is_email_valid, check_direction, update_board
+from projet.utils import is_email_valid, validation_and_move, fill_paddock
 
 from .models import db, User, Game
 
@@ -54,29 +54,33 @@ def game(game_id):
 
         # lire le JSOn
         move = request.get_json()
+
         # vérifier que le mouvement est valide par rapport au board
         board = current_game.board_array()
-        posX = current_game.pos_player1_X
-        posY = current_game.pos_player1_Y
+        pos_x = current_game.pos_player1_X
+        pos_y = current_game.pos_player1_Y
+        is_autorised_move, new_pos_y, new_pos_x = validation_and_move(board, pos_y, pos_x, move)
 
-        if move == "LEFT":
-            is_autorised_move, posX, posy = check_direction(board, posX, posY, "Y", -1)
-        elif move == "RIGHT":
-            is_autorised_move, posX, posy = check_direction(board, posX, posY, "Y", 1)
-        elif move == "UP":
-            is_autorised_move, posX, posy = check_direction(board, posX, posY, "X", -1)
-        elif move == "DOWN":
-            is_autorised_move, posX, posy = check_direction(board, posX, posY, "X", 1)
-
+        
         # ajouter le move ds la partie
         if is_autorised_move:
-            board[posX][posX] += 1  # if you take that it 's the first and only player
+            # bouger le joueur
+            current_game.pos_player1_X = new_pos_x
+            current_game.pos_player2_Y = new_pos_y
+            board[new_pos_y][new_pos_x] = 1  # if you take that it 's the first and only player
+            #update le board
+            board = fill_paddock(board)
 
-        # parser le JSOn
+        # parser le board en string de stockage
         board_str = Game.board_to_string(board)
 
-        # voir la methode updateBoard de util et board_array de models
-        update_board(board)  # besoin d'être récupérer et renvoyé au client ?
+        #update current_board.board
+        current_game.board = board_str
+
+        # mettre à jour
+        db.commit()
+
+    
 
     return render_template(
         "game.html",
