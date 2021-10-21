@@ -59,28 +59,29 @@ def game(game_id):
         board = current_game.board_array()
         pos_x = current_game.pos_player1_X
         pos_y = current_game.pos_player1_Y
-        is_autorised_move, new_pos_y, new_pos_x = validation_and_move(board, pos_y, pos_x, move)
+        is_autorised_move, new_pos_y, new_pos_x = validation_and_move(
+            board, pos_y, pos_x, move
+        )
 
-        
         # ajouter le move ds la partie
         if is_autorised_move:
             # bouger le joueur
             current_game.pos_player1_X = new_pos_x
             current_game.pos_player2_Y = new_pos_y
-            board[new_pos_y][new_pos_x] = 1  # if you take that it 's the first and only player
-            #update le board
+            board[new_pos_y][
+                new_pos_x
+            ] = 1  # if you take that it 's the first and only player
+            # update le board
             board = fill_paddock(board)
 
         # parser le board en string de stockage
         board_str = Game.board_to_string(board)
 
-        #update current_board.board
+        # update current_board.board
         current_game.board = board_str
 
         # mettre à jour
         db.commit()
-
-    
 
     return render_template(
         "game.html",

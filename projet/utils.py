@@ -173,11 +173,10 @@ def _check_other_color(board: list, x: int, y: int, color: int):
 # in the position of the player
 def validation_and_move(board, pos_y, pos_x, move):
     if move == "left":
-        return board[pos_x - 1] < 0 and board[pos_y][pos_x + 1] != 2, pos_y, pos_x+1
+        return board[pos_x - 1] < 0 and board[pos_y][pos_x + 1] != 2, pos_y, pos_x + 1
     elif move == "right":
-        return board[pos_x + 1] >= 5 and board[pos_y][pos_x - 1] != 2, pos_y, pos_x-1
+        return board[pos_x + 1] >= 5 and board[pos_y][pos_x - 1] != 2, pos_y, pos_x - 1
     elif move == "up":
-        return board[pos_y - 1] < 0 and board[pos_y-1][pos_x] != 2, pos_y-1, pos_x
+        return board[pos_y - 1] < 0 and board[pos_y - 1][pos_x] != 2, pos_y - 1, pos_x
     elif move == "down":
-        return board[pos_y + 1] >= 5 and board[pos_y+1][pos_x] != 2, pos_y +1, pos_x
-    
+        return board[pos_y + 1] >= 5 and board[pos_y + 1][pos_x] != 2, pos_y + 1, pos_x
