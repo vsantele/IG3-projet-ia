@@ -1,7 +1,7 @@
 import re
 
 
-def is_email_valid(email):
+def is_email_valid(email: str):
     """Check if an email is valid.
 
     Args:
@@ -16,7 +16,7 @@ def is_email_valid(email):
     )
 
 
-def update_board(board):
+def update_board(board: list):
     """Update board to paint enclosed cells.
 
     Args:
@@ -69,8 +69,8 @@ def update_board(board):
     return board
 
 
-def find_empty_cell(board, x, y):
-    """Return all empty cells around the given cell.
+def find_empty_cell(board: list, x: int, y: int):
+    """Return all empty cells around the given cell never checked.
 
     Args:
         board (2D Array): Board
@@ -92,7 +92,7 @@ def find_empty_cell(board, x, y):
     return empty_cells
 
 
-def check_around_cells(board, x, y, color):
+def check_around_cells(board: list, x: int, y: int, color: int):
 
     is_other_color = []
     if x > 0:
@@ -106,7 +106,7 @@ def check_around_cells(board, x, y, color):
     return any(is_other_color)
 
 
-def color_cells(board, color, cell=0):
+def color_cells(board: list, color: int, cell: int = 0):
     for x in range(0, 5):
         for y in range(0, 5):
             if board[x][y] == cell:
@@ -114,7 +114,7 @@ def color_cells(board, color, cell=0):
     return board
 
 
-def check_other_color(board, x, y, color):
+def check_other_color(board: list, x: int, y: int, color: int):
     if board[x][y] == color:
         return False
     if (board[x][y] > 0 and board[x][y] != color) or (board[x][y] == -1):
