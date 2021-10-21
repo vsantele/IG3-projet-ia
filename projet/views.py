@@ -24,10 +24,10 @@ def index():
 def game_create():
     """Create game"""
     # TODO: add game creation + redirect /game/<game_id>
-    game = Game(user_id_1=current_user.id)
-    db.session.add(game)
+    new_game = Game(user_id_1=current_user.id)
+    db.session.add(new_game)
     db.session.commit()
-    return redirect(url_for("game.game", game_id=game.id))
+    return redirect(url_for("game.game", game_id=new_game.id))
 
 
 @game_bp.route("/game/<int:game_id>", methods=["GET", "POST"])
