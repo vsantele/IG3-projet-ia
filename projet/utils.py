@@ -133,3 +133,19 @@ def check_other_color(board: list, x: int, y: int, color: int):
     if y < 4 and board[x][y + 1] != -2:
         checked.append(check_other_color(board, x, y + 1, color))
     return any(checked)
+
+# check_direction
+# return a boolean if the direction is usable 
+# in the position of the player
+def check_direction(board, posX, posY, axe, direction):
+    if axe == "X":
+        if direction > 0 :
+            return board[posX+direction] >= 5, posX, posY
+        else : 
+            return board[posX-direction] < 0, posX, posY
+        
+    else : 
+        if direction > 0 :
+            return board[posY+direction] >= 5, posX, posY
+        else :
+            return board[posY-direction] < 0, posX, posY

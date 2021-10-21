@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, flash, redirect, render_template, request, u
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from projet.utils import is_email_valid
+from projet.utils import is_email_valid, check_direction, update_board
 
 from .models import db, User, Game
 
@@ -47,7 +47,34 @@ def game(game_id):
         return redirect(url_for("game.index"))
     if request.method == "POST":
         # TODO: handle move
-        pass
+        
+        # lire le JSOn
+        move = request.get_json()
+        # vérifier que le mouvement est valide par rapport au board
+        board = current_game.board_array()
+        posX = current_game.pos_player1_X
+        posY = current_game.pos_player1_Y
+
+        if move == "LEFT" :
+            is_autorised_move, posX, posy = check_direction(board,posX,posY,"Y",-1)
+        elif move == "RIGHT" :
+            is_autorised_move, posX, posy = check_direction(board,posX,posY,"Y",1)
+        elif move == "UP" :
+            is_autorised_move, posX, posy = check_direction(board,posX,posY,"X",-1)
+        elif move == "DOWN" :
+            is_autorised_move, posX, posy = check_direction(board,posX,posY,"X",1)
+
+        # ajouter le move ds la partie
+        if is_autorised_move :
+            board[posX][posX] += 1 # if you take that it 's the first and only player
+        
+        # parser le JSOn
+        board_str = Game.board_to_string(board)
+
+        # voir la methode updateBoard de util et board_array de models
+        update_board(board) # besoin d'être récupérer et renvoyé au client ?
+        
+
     return render_template(
         "game.html",
         game_state={
@@ -129,3 +156,4 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for("game.index"))
+
