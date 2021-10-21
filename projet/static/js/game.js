@@ -137,7 +137,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", () => {
   board = parseBoard(boardString);
   setBoard();
   setClickable();
