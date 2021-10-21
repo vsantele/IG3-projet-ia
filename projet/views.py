@@ -51,7 +51,7 @@ def game(game_id):
         return redirect(url_for("game.index"))
     if request.method == "POST":
         # TODO: handle move
-        
+
         # lire le JSOn
         move = request.get_json()
         # vérifier que le mouvement est valide par rapport au board
@@ -59,25 +59,24 @@ def game(game_id):
         posX = current_game.pos_player1_X
         posY = current_game.pos_player1_Y
 
-        if move == "LEFT" :
-            is_autorised_move, posX, posy = check_direction(board,posX,posY,"Y",-1)
-        elif move == "RIGHT" :
-            is_autorised_move, posX, posy = check_direction(board,posX,posY,"Y",1)
-        elif move == "UP" :
-            is_autorised_move, posX, posy = check_direction(board,posX,posY,"X",-1)
-        elif move == "DOWN" :
-            is_autorised_move, posX, posy = check_direction(board,posX,posY,"X",1)
+        if move == "LEFT":
+            is_autorised_move, posX, posy = check_direction(board, posX, posY, "Y", -1)
+        elif move == "RIGHT":
+            is_autorised_move, posX, posy = check_direction(board, posX, posY, "Y", 1)
+        elif move == "UP":
+            is_autorised_move, posX, posy = check_direction(board, posX, posY, "X", -1)
+        elif move == "DOWN":
+            is_autorised_move, posX, posy = check_direction(board, posX, posY, "X", 1)
 
         # ajouter le move ds la partie
-        if is_autorised_move :
-            board[posX][posX] += 1 # if you take that it 's the first and only player
-        
+        if is_autorised_move:
+            board[posX][posX] += 1  # if you take that it 's the first and only player
+
         # parser le JSOn
         board_str = Game.board_to_string(board)
 
         # voir la methode updateBoard de util et board_array de models
-        update_board(board) # besoin d'être récupérer et renvoyé au client ?
-        
+        update_board(board)  # besoin d'être récupérer et renvoyé au client ?
 
     return render_template(
         "game.html",
@@ -166,4 +165,3 @@ def logout():
     """
     logout_user()
     return redirect(url_for("game.index"))
-
