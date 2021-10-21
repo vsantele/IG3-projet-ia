@@ -1,3 +1,5 @@
+/*global board, boardString, players, gameIDt */
+
 let canSendMovement = true;
 
 window.addEventListener("DOMContentLoaded", function () {
