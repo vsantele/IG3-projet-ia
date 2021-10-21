@@ -106,8 +106,7 @@ function placePlayer(player, [x, y]) {
 
 document.addEventListener("keydown", (event) => {
   event.preventDefault();
-  const x = players[0][0];
-  const y = players[0][1];
+  const [x, y] = players[0];
   const key = event.code;
   switch (key) {
     case "ArrowLeft":
