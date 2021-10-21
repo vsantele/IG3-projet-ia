@@ -26,8 +26,10 @@ def update_board(board: list):
         2D Array: The updated board.
 
     Explanation:
-        The board is updated by checking if an empty cell is surrounded by cells of the same color.
-        If an empty cell is surrounded by cells of the same color, it is painted with the same color.
+        The board is updated by checking if an empty cell is surrounded by cells
+        of the same color.
+        If an empty cell is surrounded by cells of the same color, it is painted
+        with the same color.
         If an empty cell is surrounded by cells of different color, it is not painted.
 
     Board Value:
