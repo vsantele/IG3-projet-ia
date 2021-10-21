@@ -2,25 +2,6 @@
 
 let canSendMovement = true;
 
-async function caseTrigger(movement) {
-  if (canSendMovement) {
-    canSendMovement = false;
-    const response = await fetch(`/game/${window.gameID}`, {
-      method: "POST",
-      body: JSON.stringify({ movement }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const body = await response.json();
-    if (response.ok) {
-      window.board = parseBoard(body.board);
-      window.players = body.players;
-      setBoard();
-      setClickable();
-    }
-    canSendMovement = true;
-  }
-}
-
 function getCase(x, y) {
   return document.getElementById(`boardcase-${x}-${y}`);
 }
@@ -102,6 +83,25 @@ function setClickable() {
 function placePlayer(player, [x, y]) {
   const boardCase = getCase(x, y);
   boardCase.innerText = player;
+}
+
+async function caseTrigger(movement) {
+  if (canSendMovement) {
+    canSendMovement = false;
+    const response = await fetch(`/game/${window.gameID}`, {
+      method: "POST",
+      body: JSON.stringify({ movement }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const body = await response.json();
+    if (response.ok) {
+      window.board = parseBoard(body.board);
+      window.players = body.players;
+      setBoard();
+      setClickable();
+    }
+    canSendMovement = true;
+  }
 }
 
 document.addEventListener("keydown", (event) => {
