@@ -19,3 +19,7 @@ td {
 .player2 {
   background-color: rgb(21, 105, 231);
 }
+
+.clickable {
+  background-color: rgba(255, 0, 0, 0.5);
+}
