@@ -1,4 +1,6 @@
-class IA:
+class AI:
+    """AI Class"""
+
     def __init__(self):
         pass
 

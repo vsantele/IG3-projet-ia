@@ -42,8 +42,24 @@ class User(UserMixin, db.Model):
 
 
 class Game(db.Model):
+    """
+    Game Model
+
+    Args:
+        datetime (datetime): Creation date of the game
+        user_id_1 (int): User 1's id
+        vs_ai (boolean): True if user 2 is an AI, False otherwise
+        # user_id_2 (int): User 2's id
+        board (string): Board's state
+        player_turn (int): Number of the player who's turn it is
+        pos_player1_X (int): X position of player 1
+        pos_player1_Y (int): Y position of player 1
+        pos_player2_X (int): X position of player 2
+        pos_player2_Y (int): Y position of player 2
+    """
+
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, nullable=False, default=date.today())
+    datetime = db.Column(db.Date, nullable=False, default=date.today())
 
     # TODO: check how foreign_keys works with sqlalchemy
     user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -70,5 +86,5 @@ class Game(db.Model):
 
     @property
     def board_array(self):
-        """Convert board to array"""
+        """Convert board to double array"""
         return [[int(self.board[x * 5 + y]) for y in range(0, 5)] for x in range(0, 5)]
