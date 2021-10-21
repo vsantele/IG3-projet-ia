@@ -1,4 +1,4 @@
-/*global board, boardString, players, gameIDt */
+/*global board, boardString, players, gameID */
 
 let canSendMovement = true;
 
