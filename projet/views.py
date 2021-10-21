@@ -23,7 +23,6 @@ def index():
 @login_required
 def game_create():
     """Create game"""
-    # TODO: add game creation + redirect /game/<game_id>
     new_game = Game(user_id_1=current_user.id)
     db.session.add(new_game)
     db.session.commit()
