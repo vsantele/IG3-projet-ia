@@ -1,5 +1,3 @@
-/*global board, boardString, players, gameID */
-
 let canSendMovement = true;
 
 function getCase(x, y) {
