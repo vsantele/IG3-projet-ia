@@ -19,7 +19,7 @@ def init_db():
     db.session.add(user)
 
     db.session.commit()
-    lg.warning("Database initialized !")
+    lg.info("Database initialized !")
 
 
 class User(UserMixin, db.Model):
