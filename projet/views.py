@@ -38,11 +38,11 @@ def game(game_id):
     Args:
         game_id (int): the ID of the game
     """
-    game = Game.query.get(game_id)
-    if game is None:
+    current_game = Game.query.get(game_id)
+    if current_game is None:
         flash("Game not found")
         return redirect(url_for("game.index"))
-    if game.user_id_1 != current_user.id:
+    if current_game.user_id_1 != current_user.id:
         flash("You are not allowed to join this game.")
         return redirect(url_for("game.index"))
     if request.method == "POST":
@@ -51,8 +51,8 @@ def game(game_id):
     return render_template(
         "game.html",
         game_state={
-            "game_id": game.id,
-            "board": game.board,
+            "game_id": current_game.id,
+            "board": current_game.board,
             "players": [[0, 0], [4, 4]],
         },
         name=current_user.name,
