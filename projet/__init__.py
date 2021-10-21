@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
+from .models import db, init_db, User
+from .views import game_bp, auth_bp
 
 # APP SETUP
 
@@ -8,7 +10,6 @@ app.config.from_object("config")
 
 # IMPORT BLUEPRINT AND REGISTER
 
-from .views import game_bp, auth_bp
 
 app.register_blueprint(game_bp)
 app.add_url_rule("/", endpoint="index")
@@ -16,7 +17,7 @@ app.add_url_rule("/", endpoint="index")
 app.register_blueprint(auth_bp)
 
 # DB SETUP
-from .models import db, init_db
+
 
 db.init_app(app)
 
@@ -25,8 +26,6 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.init_app(app)
-
-from .models import User
 
 
 @login_manager.user_loader
