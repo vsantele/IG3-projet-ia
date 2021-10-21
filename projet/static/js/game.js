@@ -5,15 +5,15 @@ let canSendMovement = true;
 async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
-    const response = await fetch(`/game/${gameID}`, {
+    const response = await fetch(`/game/${window.gameID}`, {
       method: "POST",
       body: JSON.stringify({ movement }),
       headers: { "Content-Type": "application/json" },
     });
     const body = await response.json();
     if (response.ok) {
-      board = parseBoard(body.board);
-      players = body.players;
+      window.board = parseBoard(body.board);
+      window.players = body.players;
       setBoard();
       setClickable();
     }
@@ -43,7 +43,7 @@ function parseBoard(stringBoard) {
 }
 
 function setBoard() {
-  board.forEach((row, y) => {
+  window.board.forEach((row, y) => {
     row.forEach((cell, x) => {
       const boardCase = getCase(x, y);
       boardCase.innerText = "";
@@ -64,32 +64,32 @@ function setBoard() {
       }
     });
   });
-  players.forEach(([x, y], i) => {
+  window.players.forEach(([x, y], i) => {
     const boardCase = getCase(x, y);
     boardCase.innerText = i + 1;
   });
 }
 
 function setClickable() {
-  board.forEach((row, y) => {
+  window.board.forEach((row, y) => {
     row.forEach((cell, x) => {
       if (cell === 1) {
-        if (x > 0 && board[x - 1][y] !== 2) {
+        if (x > 0 && window.board[x - 1][y] !== 2) {
           const selectedCell = getCase(x - 1, y);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("left"));
         }
-        if (x < 4 && board[x + 1][y] !== 2) {
+        if (x < 4 && window.board[x + 1][y] !== 2) {
           const selectedCell = getCase(x + 1, y);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("right"));
         }
-        if (y > 0 && board[x][y - 1] !== 2) {
+        if (y > 0 && window.board[x][y - 1] !== 2) {
           const selectedCell = getCase(x, y - 1);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("up"));
         }
-        if (y < 4 && board[x][y + 1] !== 2) {
+        if (y < 4 && window.board[x][y + 1] !== 2) {
           const selectedCell = getCase(x, y + 1);
           selectedCell.classList.add("clickable");
           selectedCell.addEventListener("click", () => caseTrigger("down"));
@@ -106,30 +106,30 @@ function placePlayer(player, [x, y]) {
 
 document.addEventListener("keydown", (event) => {
   event.preventDefault();
-  const [x, y] = players[0];
+  const [x, y] = window.players[0];
   const key = event.code;
   switch (key) {
     case "ArrowLeft":
     case "KeyA":
-      if (x > 0 && board[x - 1][y] !== 2) {
+      if (x > 0 && window.board[x - 1][y] !== 2) {
         caseTrigger("left");
       }
       break;
     case "ArrowRight":
     case "KeyD":
-      if (x < 4 && board[x + 1][y] !== 2) {
+      if (x < 4 && window.board[x + 1][y] !== 2) {
         caseTrigger("right");
       }
       break;
     case "ArrowUp":
     case "KeyW":
-      if (y > 0 && board[0][y - 1] !== 2) {
+      if (y > 0 && window.board[0][y - 1] !== 2) {
         caseTrigger("up");
       }
       break;
     case "ArrowDown":
     case "KeyS":
-      if (y < 4 && board[0][y + 1] !== 2) {
+      if (y < 4 && window.board[0][y + 1] !== 2) {
         caseTrigger("down");
       }
       break;
@@ -137,7 +137,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-  board = parseBoard(boardString);
+  window.board = parseBoard(boardString);
   setBoard();
   setClickable();
 });
