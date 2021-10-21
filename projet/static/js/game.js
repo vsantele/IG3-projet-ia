@@ -2,12 +2,6 @@
 
 let canSendMovement = true;
 
-window.addEventListener("DOMContentLoaded", function () {
-  board = parseBoard(boardString);
-  setBoard();
-  setClickable();
-});
-
 async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
@@ -141,4 +135,10 @@ document.addEventListener("keydown", (event) => {
       }
       break;
   }
+});
+
+window.addEventListener("DOMContentLoaded", function () {
+  board = parseBoard(boardString);
+  setBoard();
+  setClickable();
 });
