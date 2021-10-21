@@ -27,7 +27,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     name = db.Column(db.String(40), nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    is_humain = db.Column(db.Boolean, nullable=False, default=True)
+    is_human = db.Column(db.Boolean, nullable=False, default=True)
 
     games = db.relationship("Game", backref="game", lazy=True)
 
