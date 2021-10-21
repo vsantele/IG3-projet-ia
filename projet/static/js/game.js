@@ -30,7 +30,6 @@ function parseBoard(stringBoard) {
 }
 
 function setBoard() {
-  console.log("board :>> ", board);
   board.forEach((row, y) => {
     row.forEach((cell, x) => {
       const boardCase = getCase(x, y);
