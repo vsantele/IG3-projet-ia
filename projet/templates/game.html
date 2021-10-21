@@ -12,10 +12,10 @@
 {% endblock %}
 {% block js %}
 <script>
-  const gameID = '{{game_state.game_id}}';
-  const boardString = "{{game_state.board}}"
+  let gameID = '{{game_state.game_id}}';
+  let boardString = "{{game_state.board}}";
   let board = [];
-  const players ={{game_state.players}};
+  let players ={{game_state.players}};
 </script>
 <script src="{{url_for('static', filename='js/game.js')}}"></script>
 {% endblock %}
