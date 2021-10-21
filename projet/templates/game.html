@@ -11,14 +11,11 @@
 </div>
 {% endblock %}
 {% block js %}
-<script src="{{url_for('static', filename='js/game.js')}}"></script>
 <script>
   const gameID = '{{game_state.game_id}}';
-  const board = parseBoard("{{game_state.board}}");
-  const players ={{game_state.players}}
-  window.onload = function() {
-    setBoard({board, players});
-  }
-  
+  const boardString = "{{game_state.board}}"
+  let board = [];
+  const players ={{game_state.players}};
 </script>
+<script src="{{url_for('static', filename='js/game.js')}}"></script>
 {% endblock %}
