@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
+from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -53,10 +53,10 @@ def game(game_id):
         # TODO: handle move
 
         # lire le JSOn
-        move = request.get_json()
+        move = request.get_json().movement
 
         # vérifier que le mouvement est valide par rapport au board
-        board = current_game.board_array()
+        board = current_game.board_array
         pos_x = current_game.pos_player1_X
         pos_y = current_game.pos_player1_Y
         is_autorised_move, new_pos_y, new_pos_x = validation_and_move(
@@ -67,7 +67,7 @@ def game(game_id):
         if is_autorised_move:
             # bouger le joueur
             current_game.pos_player1_X = new_pos_x
-            current_game.pos_player2_Y = new_pos_y
+            current_game.pos_player1_Y = new_pos_y
             board[new_pos_y][
                 new_pos_x
             ] = 1  # if you take that it 's the first and only player
@@ -82,6 +82,15 @@ def game(game_id):
 
         # mettre à jour
         db.commit()
+
+        # # renvoyer un json avec les infos de jeux update
+        # return jsonify(
+        #     board = board_str,
+        #     players = [
+        #         [new_pos_y,new_pos_x],
+        #         [current_game.pos_player2_Y, current_game.pos_player2_X]
+        #     ]
+        # )
 
     return render_template(
         "game.html",
