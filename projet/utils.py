@@ -187,4 +187,4 @@ def validation_and_move(board, pos_y, pos_x, move):
     elif move == "down":
         is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != 2
         if is_valid:
-            return is_valid, pos_y + 1, pos_x 
+            return is_valid, pos_y + 1, pos_x
