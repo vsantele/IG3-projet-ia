@@ -94,11 +94,11 @@ def game(game_id):
 
         # renvoyer un json avec les infos de jeux update
         return jsonify(
-            board = board_str,
-            players = [
-                [new_pos_y,new_pos_x],
-                [current_game.pos_player2_Y, current_game.pos_player2_X]
-            ]
+            board=board_str,
+            players=[
+                [new_pos_y, new_pos_x],
+                [current_game.pos_player2_Y, current_game.pos_player2_X],
+            ],
         )
 
     return render_template(
