@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 
 def is_email_valid(email: str):
@@ -16,7 +17,7 @@ def is_email_valid(email: str):
     )
 
 
-def fill_paddock(board: list):
+def fill_paddock(board: List[List[int]]):
     """Update board to paint enclosed cells.
 
     Args:
@@ -71,7 +72,7 @@ def fill_paddock(board: list):
     return board
 
 
-def _find_empty_cell(board: list, x: int, y: int):
+def _find_empty_cell(board: List[List[int]], x: int, y: int):
     """Return all empty cells around the given cell never checked.
 
     Args:
@@ -94,7 +95,7 @@ def _find_empty_cell(board: list, x: int, y: int):
     return empty_cells
 
 
-def _check_around_cells(board: list, x: int, y: int, color: int):
+def _check_around_cells(board: List[List[int]], x: int, y: int, color: int):
     """Start recursive function to check if there are cells of another color
     linked to the start cell by empty cells.
 
@@ -119,7 +120,7 @@ def _check_around_cells(board: list, x: int, y: int, color: int):
     return any(is_other_color)
 
 
-def _color_cells(board: list, color: int, cell: int = 0):
+def _color_cells(board: List[List[int]], color: int, cell: int = 0):
     """Color cells of the board from one color to another.
 
     Args:
@@ -137,7 +138,7 @@ def _color_cells(board: list, color: int, cell: int = 0):
     return board
 
 
-def _check_other_color(board: list, x: int, y: int, color: int):
+def _check_other_color(board: List[List[int]], x: int, y: int, color: int):
     """Recursive function to check if there are cells of another color
     linked to the start cell by empty cells. Mark the cells as checked.
 
