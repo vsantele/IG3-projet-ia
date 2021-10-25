@@ -62,14 +62,14 @@ def game(game_id):
         # TODO: handle move
 
         # lire le JSOn
-        move = request.get_json().movement
+        move = request.get_json()["movement"]
 
         # vérifier que le mouvement est valide par rapport au board
         board = current_game.board_array
         pos_x = current_game.pos_player1_X
         pos_y = current_game.pos_player1_Y
-        is_autorised_move, new_pos_y, new_pos_x = validation_and_move(
-            board, pos_y, pos_x, move
+        is_autorised_move, new_pos_x, new_pos_y = validation_and_move(
+            board, pos_x, pos_y, move
         )
 
         # ajouter le move ds la partie
@@ -90,14 +90,13 @@ def game(game_id):
         current_game.board = board_str
 
         # mettre à jour
-        db.commit()
-
+        db.session.commit()
         # renvoyer un json avec les infos de jeux update
         return jsonify(
             board=board_str,
             players=[
-                [new_pos_y, new_pos_x],
-                [current_game.pos_player2_Y, current_game.pos_player2_X],
+                [new_pos_x, new_pos_y],
+                [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
         )
 
@@ -106,7 +105,10 @@ def game(game_id):
         game_state={
             "game_id": current_game.id,
             "board": current_game.board,
-            "players": [[0, 0], [4, 4]],
+            "players": [
+                [current_game.pos_player1_X, current_game.pos_player1_Y],
+                [current_game.pos_player2_X, current_game.pos_player2_Y],
+            ],
         },
         name=current_user.name,
     )
