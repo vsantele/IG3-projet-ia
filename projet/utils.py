@@ -171,21 +171,21 @@ def _check_other_color(board: list, x: int, y: int, color: int):
 # check_direction
 # return a boolean if the direction is usable
 # in the position of the player
-def validation_and_move(board, pos_x, pos_y, move):
+def validation_and_move(board, pos_x, pos_y, move, other_player_color):
     if move == "left":
-        is_valid = pos_x > 0 and board[pos_y][pos_x - 1] != 2
+        is_valid = pos_x > 0 and board[pos_y][pos_x - 1] != other_player_color
         if is_valid:
             pos_x = pos_x - 1
     elif move == "right":
-        is_valid = pos_x < 4 and board[pos_y][pos_x + 1] != 2
+        is_valid = pos_x < 4 and board[pos_y][pos_x + 1] != other_player_color
         if is_valid:
             pos_x = pos_x + 1
     elif move == "up":
-        is_valid = pos_y > 0 and board[pos_y - 1][pos_x] != 2
+        is_valid = pos_y > 0 and board[pos_y - 1][pos_x] != other_player_color
         if is_valid:
             pos_y = pos_y - 1
     elif move == "down":
-        is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != 2
+        is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != other_player_color
         if is_valid:
             pos_y = pos_y + 1
     return is_valid, pos_x, pos_y
