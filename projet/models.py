@@ -63,7 +63,7 @@ class Game(db.Model):
 
     # TODO: check how foreign_keys works with sqlalchemy
     user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # user_id_2 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # user_id_2 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     vs_ai = db.Column(db.Boolean, default=True)
 
