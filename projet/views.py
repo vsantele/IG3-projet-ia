@@ -91,16 +91,8 @@ def game(game_id):
         # update le board
         board = fill_paddock(board)
 
-        # AI MOVE
-        ai_move = get_move(current_game)
-        is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
-            board,
-            current_game.pos_player2_X,
-            current_game.pos_player2_Y,
-            ai_move,
-            1,
-        )
-        while not is_autorised_move:
+        if current_game.vs_ai:
+            # AI MOVE
             ai_move = get_move(current_game)
             is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
                 board,
@@ -109,11 +101,20 @@ def game(game_id):
                 ai_move,
                 1,
             )
+            while not is_autorised_move:
+                ai_move = get_move(current_game)
+                is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
+                    board,
+                    current_game.pos_player2_X,
+                    current_game.pos_player2_Y,
+                    ai_move,
+                    1,
+                )
 
-        current_game.pos_player2_X = new_pos_AI_x
-        current_game.pos_player2_Y = new_pos_AI_y
-        board[new_pos_AI_y][new_pos_AI_x] = 2
-        board = fill_paddock(board)
+            current_game.pos_player2_X = new_pos_AI_x
+            current_game.pos_player2_Y = new_pos_AI_y
+            board[new_pos_AI_y][new_pos_AI_x] = 2
+            board = fill_paddock(board)
 
         # parser le board en string de stockage
         board_str = Game.board_to_string(board)
