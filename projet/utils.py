@@ -175,16 +175,17 @@ def validation_and_move(board, pos_y, pos_x, move):
     if move == "left":
         is_valid = pos_x > 1 and board[pos_y][pos_x - 1] != 2
         if is_valid:
-            return is_valid, pos_y, pos_x - 1
+            pos_x = pos_x - 1
     elif move == "right":
         is_valid = pos_x < 4 and board[pos_y][pos_x + 1] != 2
         if is_valid:
-            return is_valid, pos_y, pos_x + 1
+            pos_x = pos_x + 1
     elif move == "up":
         is_valid = pos_y > 1 and board[pos_y - 1][pos_x] != 2
         if is_valid:
-            return is_valid, pos_y - 1, pos_x
+            pos_y = pos_y - 1
     elif move == "down":
         is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != 2
         if is_valid:
-            return is_valid, pos_y + 1, pos_x
+            pos_y = pos_y + 1
+    return is_valid, pos_y, pos_x
