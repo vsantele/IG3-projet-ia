@@ -19,7 +19,6 @@ packaging==21.0
 pathspec==0.9.0
 platformdirs==2.4.0
 pluggy==1.0.0
--e git+ssh://git@github.com/WolfVic/IG3-projet-ia.git@50ca46721e2574823fcfe1851aabc79663338768#egg=projet
 py==1.10.0
 pyparsing==3.0.1
 pytest==6.2.5

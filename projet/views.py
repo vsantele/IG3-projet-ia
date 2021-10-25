@@ -15,6 +15,8 @@ from projet.utils import is_email_valid, validation_and_move, fill_paddock
 
 from .models import db, User, Game
 
+from .ai import get_move
+
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
 
@@ -59,28 +61,59 @@ def game(game_id):
         flash("You are not allowed to join this game.")
         return redirect(url_for("game.index"))
     if request.method == "POST":
-        # TODO: handle move
 
         # lire le JSOn
-        move = request.get_json().movement
+        move = request.get_json()["movement"]
+        if move not in ("left", "right", "up", "down"):
+            res = jsonify(message="Mouvment inconnu")
+            res.status = 400
+            return res
 
         # vérifier que le mouvement est valide par rapport au board
         board = current_game.board_array
         pos_x = current_game.pos_player1_X
         pos_y = current_game.pos_player1_Y
-        is_autorised_move, new_pos_y, new_pos_x = validation_and_move(
-            board, pos_y, pos_x, move
+        is_autorised_move, new_pos_x, new_pos_y = validation_and_move(
+            board, pos_x, pos_y, move, 2
         )
 
         # ajouter le move ds la partie
-        if is_autorised_move:
-            # bouger le joueur
-            current_game.pos_player1_X = new_pos_x
-            current_game.pos_player1_Y = new_pos_y
-            board[new_pos_y][
-                new_pos_x
-            ] = 1  # if you take that it 's the first and only player
-            # update le board
+        if not is_autorised_move:
+            res = jsonify(message="Mouvement non valide")
+            res.status = 400
+            return res
+        # bouger le joueur
+        current_game.pos_player1_X = new_pos_x
+        current_game.pos_player1_Y = new_pos_y
+        board[new_pos_y][
+            new_pos_x
+        ] = 1  # if you take that it 's the first and only player
+        # update le board
+        board = fill_paddock(board)
+
+        if current_game.vs_ai:
+            # AI MOVE
+            ai_move = get_move(current_game)
+            is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
+                board,
+                current_game.pos_player2_X,
+                current_game.pos_player2_Y,
+                ai_move,
+                1,
+            )
+            while not is_autorised_move:
+                ai_move = get_move(current_game)
+                is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
+                    board,
+                    current_game.pos_player2_X,
+                    current_game.pos_player2_Y,
+                    ai_move,
+                    1,
+                )
+
+            current_game.pos_player2_X = new_pos_AI_x
+            current_game.pos_player2_Y = new_pos_AI_y
+            board[new_pos_AI_y][new_pos_AI_x] = 2
             board = fill_paddock(board)
 
         # parser le board en string de stockage
@@ -90,14 +123,13 @@ def game(game_id):
         current_game.board = board_str
 
         # mettre à jour
-        db.commit()
-
+        db.session.commit()
         # renvoyer un json avec les infos de jeux update
         return jsonify(
             board=board_str,
             players=[
-                [new_pos_y, new_pos_x],
-                [current_game.pos_player2_Y, current_game.pos_player2_X],
+                [new_pos_x, new_pos_y],
+                [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
         )
 
@@ -106,7 +138,10 @@ def game(game_id):
         game_state={
             "game_id": current_game.id,
             "board": current_game.board,
-            "players": [[0, 0], [4, 4]],
+            "players": [
+                [current_game.pos_player1_X, current_game.pos_player1_Y],
+                [current_game.pos_player2_X, current_game.pos_player2_Y],
+            ],
         },
         name=current_user.name,
     )
