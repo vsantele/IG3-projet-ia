@@ -16,7 +16,7 @@ def is_email_valid(email: str):
     )
 
 
-def update_board(board: list):
+def fill_paddock(board: list):
     """Update board to paint enclosed cells.
 
     Args:
@@ -58,20 +58,20 @@ def update_board(board: list):
     for x in range(0, 5):
         for y in range(0, 5):
             if board[x][y] > 0:
-                empty_cells = find_empty_cell(board, x, y)
+                empty_cells = _find_empty_cell(board, x, y)
                 for empty_cell in empty_cells:
-                    found_other_color = check_around_cells(
+                    found_other_color = _check_around_cells(
                         board, empty_cell[0], empty_cell[1], color=board[x][y]
                     )
                     if found_other_color:
-                        board = color_cells(board, color=-1, cell=-2)
+                        board = _color_cells(board, color=-1, cell=-2)
                     else:
-                        board = color_cells(board, color=board[x][y], cell=-2)
-    board = color_cells(board, color=0, cell=-1)
+                        board = _color_cells(board, color=board[x][y], cell=-2)
+    board = _color_cells(board, color=0, cell=-1)
     return board
 
 
-def find_empty_cell(board: list, x: int, y: int):
+def _find_empty_cell(board: list, x: int, y: int):
     """Return all empty cells around the given cell never checked.
 
     Args:
@@ -94,7 +94,7 @@ def find_empty_cell(board: list, x: int, y: int):
     return empty_cells
 
 
-def check_around_cells(board: list, x: int, y: int, color: int):
+def _check_around_cells(board: list, x: int, y: int, color: int):
     """Start recursive function to check if there are cells of another color
     linked to the start cell by empty cells.
 
@@ -109,17 +109,17 @@ def check_around_cells(board: list, x: int, y: int, color: int):
     """
     is_other_color = []
     if x > 0:
-        is_other_color.append(check_other_color(board, x - 1, y, color=color))
+        is_other_color.append(_check_other_color(board, x - 1, y, color=color))
     if x < 4:
-        is_other_color.append(check_other_color(board, x + 1, y, color=color))
+        is_other_color.append(_check_other_color(board, x + 1, y, color=color))
     if y > 0:
-        is_other_color.append(check_other_color(board, x, y - 1, color=color))
+        is_other_color.append(_check_other_color(board, x, y - 1, color=color))
     if y < 4:
-        is_other_color.append(check_other_color(board, x, y + 1, color=color))
+        is_other_color.append(_check_other_color(board, x, y + 1, color=color))
     return any(is_other_color)
 
 
-def color_cells(board: list, color: int, cell: int = 0):
+def _color_cells(board: list, color: int, cell: int = 0):
     """Color cells of the board from one color to another.
 
     Args:
@@ -137,7 +137,7 @@ def color_cells(board: list, color: int, cell: int = 0):
     return board
 
 
-def check_other_color(board: list, x: int, y: int, color: int):
+def _check_other_color(board: list, x: int, y: int, color: int):
     """Recursive function to check if there are cells of another color
     linked to the start cell by empty cells. Mark the cells as checked.
 
@@ -158,28 +158,34 @@ def check_other_color(board: list, x: int, y: int, color: int):
         board[x][y] = -2
     checked = []
     if x > 0 and board[x - 1][y] != -2:
-        checked.append(check_other_color(board, x - 1, y, color))
+        checked.append(_check_other_color(board, x - 1, y, color))
     if x < 4 and board[x + 1][y] != -2:
-        checked.append(check_other_color(board, x + 1, y, color))
+        checked.append(_check_other_color(board, x + 1, y, color))
     if y > 0 and board[x][y - 1] != -2:
-        checked.append(check_other_color(board, x, y - 1, color))
+        checked.append(_check_other_color(board, x, y - 1, color))
     if y < 4 and board[x][y + 1] != -2:
-        checked.append(check_other_color(board, x, y + 1, color))
+        checked.append(_check_other_color(board, x, y + 1, color))
     return any(checked)
 
 
 # check_direction
 # return a boolean if the direction is usable
 # in the position of the player
-def check_direction(board, posX, posY, axe, direction):
-    if axe == "X":
-        if direction > 0:
-            return board[posX + direction] >= 5, posX, posY
-        else:
-            return board[posX - direction] < 0, posX, posY
-
-    else:
-        if direction > 0:
-            return board[posY + direction] >= 5, posX, posY
-        else:
-            return board[posY - direction] < 0, posX, posY
+def validation_and_move(board, pos_y, pos_x, move):
+    if move == "left":
+        is_valid = pos_x > 1 and board[pos_y][pos_x - 1] != 2
+        if is_valid:
+            pos_x = pos_x - 1
+    elif move == "right":
+        is_valid = pos_x < 4 and board[pos_y][pos_x + 1] != 2
+        if is_valid:
+            pos_x = pos_x + 1
+    elif move == "up":
+        is_valid = pos_y > 1 and board[pos_y - 1][pos_x] != 2
+        if is_valid:
+            pos_y = pos_y - 1
+    elif move == "down":
+        is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != 2
+        if is_valid:
+            pos_y = pos_y + 1
+    return is_valid, pos_y, pos_x
