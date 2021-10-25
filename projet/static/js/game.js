@@ -84,19 +84,26 @@ function placePlayer(player, [x, y]) {
 async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
-    const response = await fetch(`/game/${window.gameID}`, {
-      method: "POST",
-      body: JSON.stringify({ movement }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const body = await response.json();
-    if (response.ok) {
-      window.board = parseBoard(body.board);
-      window.players = body.players;
-      setBoard();
-      // setClickable();
+    try {
+      const response = await fetch(`/game/${window.gameID}`, {
+        method: "POST",
+        body: JSON.stringify({ movement }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await response.json();
+      if (response.ok) {
+        window.board = parseBoard(body.board);
+        window.players = body.players;
+        setBoard();
+        // setClickable();
+      } else {
+        console.log(body);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      canSendMovement = true;
     }
-    canSendMovement = true;
   }
 }
 
@@ -107,28 +114,28 @@ document.addEventListener("keydown", (event) => {
     case "ArrowLeft":
     case "KeyA":
       event.preventDefault();
-      if (x > 0 && window.board[x - 1][y] !== 2) {
+      if (x > 0 && window.board[y][x - 1] !== 2) {
         caseTrigger("left");
       }
       break;
     case "ArrowRight":
     case "KeyD":
       event.preventDefault();
-      if (x < 4 && window.board[x + 1][y] !== 2) {
+      if (x < 4 && window.board[y][x + 1] !== 2) {
         caseTrigger("right");
       }
       break;
     case "ArrowUp":
     case "KeyW":
       event.preventDefault();
-      if (y > 0 && window.board[0][y - 1] !== 2) {
+      if (y > 0 && window.board[y - 1][x] !== 2) {
         caseTrigger("up");
       }
       break;
     case "ArrowDown":
     case "KeyS":
       event.preventDefault();
-      if (y < 4 && window.board[0][y + 1] !== 2) {
+      if (y < 4 && window.board[y + 1][x] !== 2) {
         caseTrigger("down");
       }
       break;
