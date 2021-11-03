@@ -136,7 +136,7 @@ def _color_cells(board: List[List[int]], color_to: int, color_from: int = 0):
 
 def _check_other_color(board: List[List[int]], x: int, y: int, color: int):
     """Recursive function to check if there are cells of another color
-    linked to the start cell by empty cells. Mark the cells as checked.
+    linked to the start cell by empty cells. Mark the cells as checked (-2).
 
     Args:
         board (list): board
