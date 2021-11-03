@@ -23,11 +23,11 @@ py==1.10.0
 pyparsing==3.0.1
 pytest==6.2.5
 python-dotenv==0.19.1
-regex==2021.9.24
+regex==2021.11.2
 SQLAlchemy==1.4.26
 toml==0.10.2
 tomli==1.2.1
 tomlkit==0.7.2
 typing-extensions==3.10.0.2
 watchdog==2.1.6
-Werkzeug==2.0.1
+Werkzeug==2.0.2
