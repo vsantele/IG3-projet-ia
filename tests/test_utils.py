@@ -2,16 +2,24 @@ import pytest
 from projet.utils import is_email_valid, fill_paddock
 
 
-@pytest.mark.parametrize("email", ["test@example.com", "vic@test.wtf"])
-def test_is_email_valid_true(email):
-    assert is_email_valid(email)
-
-
 @pytest.mark.parametrize(
-    "email", ["@example.com", "@test", "test@", "test@test.", "", "abc", "test@.", "@."]
+    ("email", "is_valid"),
+    [
+        ("test@example.com", True),
+        ("vic@test.wtf", True),
+        ("@example.com", False),
+        ("@test", False),
+        ("test@", False),
+        ("test@test.", False),
+        ("", False),
+        ("abc", False),
+        ("test@.", False),
+        ("@.", False),
+    ],
 )
-def test_is_email_valid_false(email):
-    assert is_email_valid(email) is False
+def test_is_email_valid(email, is_valid):
+    """Test `is_email_valid`."""
+    assert is_email_valid(email) is is_valid
 
 
 @pytest.mark.parametrize(
@@ -99,5 +107,6 @@ def test_is_email_valid_false(email):
         ),
     ],
 )
-def test_update_board(board_in, board_out):
+def test_fill_paddock(board_in, board_out):
+    """Test function `fill_paddock`."""
     assert fill_paddock(board_in) == board_out
