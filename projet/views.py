@@ -63,7 +63,13 @@ def game(game_id):
     if request.method == "POST":
 
         # lire le JSOn
-        move = request.get_json()["movement"]
+        body = request.get_json()
+        if body is None or "movement" not in body:
+            res = jsonify(message="Requête non valide")
+            res.status = 400
+            return res
+
+        move = body["movement"]
         if move not in ("left", "right", "up", "down"):
             res = jsonify(message="Mouvment inconnu")
             res.status = 400
