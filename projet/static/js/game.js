@@ -97,9 +97,19 @@ async function caseTrigger(movement) {
         setBoard();
         // setClickable();
       } else {
+        bulmaToast.toast({
+          message: body.message,
+          type: "is-danger",
+          position: "top-center",
+        });
         console.log(body);
       }
     } catch (err) {
+      bulmaToast.toast({
+        message: "Une erreur inconnue est survenue",
+        type: "is-danger",
+        position: "top-center",
+      });
       console.error(err);
     } finally {
       canSendMovement = true;
