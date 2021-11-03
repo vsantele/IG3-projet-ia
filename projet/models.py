@@ -96,7 +96,7 @@ class Game(db.Model):
         Returns:
             bool: `True` if the game is finished, `False` otherwise.
         """
-        return not "0" in self.board
+        return "0" not in self.board
 
     @property
     def winner(self):
