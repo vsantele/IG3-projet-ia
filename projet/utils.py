@@ -62,7 +62,7 @@ def fill_paddock(board: List[List[int]]):
                 empty_cells = _find_empty_cell(board, x, y)
                 for empty_cell in empty_cells:
                     found_other_color = _check_around_cells(
-                        board, empty_cell[0], empty_cell[1], color=board[x][y]
+                        board, x=empty_cell[0], y=empty_cell[1], color=board[x][y]
                     )
                     if found_other_color:
                         board = _color_cells(board, color=-1, cell=-2)
