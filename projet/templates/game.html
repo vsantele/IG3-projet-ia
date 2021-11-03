@@ -9,6 +9,14 @@
   <h1 class="title">{%block title %} Partie #{{ game_state.game_id }}{%endblock %}</h1>
   {{board(5)}}
 </div>
+<!-- modal -->
+<div class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <!-- Any other Bulma elements you want -->
+  </div>
+  <button class="modal-close is-large" aria-label="close"></button>
+</div>
 {% endblock %}
 {% block js %}
 <script>

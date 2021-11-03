@@ -20,7 +20,7 @@ Run `pip install -r requirements.txt`
 
 ## Initialize Database
 
-Run `flask init-db`
+Run `flask init_db`
 
 ## run
 
