@@ -141,6 +141,7 @@ def game(game_id):
                 [new_pos_x, new_pos_y],
                 [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
+            winner=current_game.winner,
         )
 
     return render_template(
@@ -152,6 +153,7 @@ def game(game_id):
                 [current_game.pos_player1_X, current_game.pos_player1_Y],
                 [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
+            "winner": current_game.winner,
         },
         name=current_user.name,
     )
