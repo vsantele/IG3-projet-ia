@@ -81,6 +81,31 @@ function placePlayer(player, [x, y]) {
   boardCase.innerText = player;
 }
 
+function endOfGame(board){
+  if(board.indexOf("0") != -1){
+    console.log("La partie continue");
+  }
+  else{
+    console.log(" !!! la partie est finie !!!")
+    player1Win = 0
+    player2Win = 0
+    for(let i=0;i<board.length;i++){
+      if(board[i]=="1"){
+        player1Win ++;
+      }
+      else{
+        player2Win ++;
+      }
+    }
+    if(player1Win>player2Win){
+      alert(` Player 1 Victory ! \n Avec ${player1Win} points, contre ${player2Win} points pour le joueur 2`)
+    }
+    else{
+      alert(` Player 2 Victory ! \n Avec ${player2Win} points, contre ${player1Win} points pour le joueur 1`)
+    }
+  }
+}
+
 async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
@@ -95,6 +120,7 @@ async function caseTrigger(movement) {
         window.board = parseBoard(body.board);
         window.players = body.players;
         setBoard();
+        endOfGame(body.board);
         // setClickable();
       } else {
         console.log(body);
@@ -141,6 +167,8 @@ document.addEventListener("keydown", (event) => {
       break;
   }
 });
+
+
 
 window.addEventListener("DOMContentLoaded", () => {
   window.board = parseBoard(boardString);
