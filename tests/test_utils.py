@@ -1,5 +1,5 @@
 import pytest
-from projet.utils import is_email_valid, update_board
+from projet.utils import is_email_valid, fill_paddock
 
 
 @pytest.mark.parametrize("email", ["test@example.com", "vic@test.wtf"])
@@ -81,7 +81,23 @@ def test_is_email_valid_false(email):
                 [0, 0, 2, 2, 2],
             ],
         ),
+        (
+            [
+                [1, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0],
+                [1, 1, 0, 2, 2],
+                [0, 0, 0, 2, 0],
+                [0, 0, 0, 2, 2],
+            ],
+            [
+                [1, 1, 0, 0, 0],
+                [1, 1, 0, 0, 0],
+                [1, 1, 0, 2, 2],
+                [0, 0, 0, 2, 2],
+                [0, 0, 0, 2, 2],
+            ],
+        ),
     ],
 )
 def test_update_board(board_in, board_out):
-    assert update_board(board_in) == board_out
+    assert fill_paddock(board_in) == board_out
