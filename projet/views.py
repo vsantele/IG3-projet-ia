@@ -61,6 +61,10 @@ def game(game_id):
         flash("You are not allowed to join this game.")
         return redirect(url_for("game.index"))
     if request.method == "POST":
+        if current_game.is_finished:
+            res = jsonify(message="La partie est finie")
+            res.status = 400
+            return res
 
         # lire le JSOn
         body = request.get_json()
