@@ -62,13 +62,13 @@ def fill_paddock(board: List[List[int]]):
                 empty_cells = _find_empty_cell(board, x, y)
                 for empty_cell in empty_cells:
                     found_other_color = _check_around_cells(
-                        board, empty_cell[0], empty_cell[1], color=board[x][y]
+                        board, x=empty_cell[0], y=empty_cell[1], color=board[x][y]
                     )
                     if found_other_color:
-                        board = _color_cells(board, color=-1, cell=-2)
+                        _color_cells(board, color_to=-1, color_from=-2)
                     else:
-                        board = _color_cells(board, color=board[x][y], cell=-2)
-    board = _color_cells(board, color=0, cell=-1)
+                        _color_cells(board, color_to=board[x][y], color_from=-2)
+    _color_cells(board, color_to=0, color_from=-1)
     return board
 
 
@@ -108,6 +108,7 @@ def _check_around_cells(board: List[List[int]], x: int, y: int, color: int):
     Returns:
         bool: `True` if there are cells of another color, `False` otherwise.
     """
+    board[x][y] = -2
     is_other_color = []
     if x > 0:
         is_other_color.append(_check_other_color(board, x - 1, y, color=color))
@@ -120,27 +121,23 @@ def _check_around_cells(board: List[List[int]], x: int, y: int, color: int):
     return any(is_other_color)
 
 
-def _color_cells(board: List[List[int]], color: int, cell: int = 0):
+def _color_cells(board: List[List[int]], color_to: int, color_from: int = 0):
     """Color cells of the board from one color to another.
 
     Args:
         board (list): board
-        color (int): final color
-        cell (int, optional): initial color. Defaults to 0.
-
-    Returns:
-        list: the updated board.
+        color_to (int): final color
+        color_from (int, optional): initial color. Defaults to 0.
     """
     for x in range(0, 5):
         for y in range(0, 5):
-            if board[x][y] == cell:
-                board[x][y] = color
-    return board
+            if board[x][y] == color_from:
+                board[x][y] = color_to
 
 
 def _check_other_color(board: List[List[int]], x: int, y: int, color: int):
     """Recursive function to check if there are cells of another color
-    linked to the start cell by empty cells. Mark the cells as checked.
+    linked to the start cell by empty cells. Mark the cells as checked (-2).
 
     Args:
         board (list): board
