@@ -88,3 +88,25 @@ class Game(db.Model):
     def board_array(self):
         """Convert board to double array"""
         return [[int(self.board[x * 5 + y]) for y in range(0, 5)] for x in range(0, 5)]
+
+    @property
+    def is_finished(self):
+        """Return if the game is finished
+
+        Returns:
+            bool: `True` if the game is finished, `False` otherwise.
+        """
+        return not "0" in self.board
+
+    @property
+    def winner(self):
+        """Return the number of the winner.
+
+        Returns:
+            int: `0` if the game is not finished, `1` or `2` otherwise.
+        """
+        if not self.is_finished:
+            return 0
+        nb_cell_1 = self.board.count("1")
+        nb_cell_2 = self.board.count("2")
+        return 1 if nb_cell_1 > nb_cell_2 else 2
