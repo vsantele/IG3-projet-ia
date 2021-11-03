@@ -108,6 +108,7 @@ def _check_around_cells(board: List[List[int]], x: int, y: int, color: int):
     Returns:
         bool: `True` if there are cells of another color, `False` otherwise.
     """
+    board[x][y] = -2
     is_other_color = []
     if x > 0:
         is_other_color.append(_check_other_color(board, x - 1, y, color=color))
