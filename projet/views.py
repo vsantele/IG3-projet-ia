@@ -61,9 +61,19 @@ def game(game_id):
         flash("You are not allowed to join this game.")
         return redirect(url_for("game.index"))
     if request.method == "POST":
+        if current_game.is_finished:
+            res = jsonify(message="La partie est finie")
+            res.status = 400
+            return res
 
         # lire le JSOn
-        move = request.get_json()["movement"]
+        body = request.get_json()
+        if body is None or "movement" not in body:
+            res = jsonify(message="Requête non valide")
+            res.status = 400
+            return res
+
+        move = body["movement"]
         if move not in ("left", "right", "up", "down"):
             res = jsonify(message="Mouvment inconnu")
             res.status = 400
@@ -131,6 +141,7 @@ def game(game_id):
                 [new_pos_x, new_pos_y],
                 [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
+            winner=current_game.winner,
         )
 
     return render_template(
@@ -142,6 +153,7 @@ def game(game_id):
                 [current_game.pos_player1_X, current_game.pos_player1_Y],
                 [current_game.pos_player2_X, current_game.pos_player2_Y],
             ],
+            "winner": current_game.winner,
         },
         name=current_user.name,
     )
