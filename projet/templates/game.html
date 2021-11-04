@@ -9,6 +9,22 @@
   <h1 class="title">{%block title %} Partie #{{ game_state.game_id }}{%endblock %}</h1>
   {{board(5)}}
 </div>
+<!-- modal -->
+<div class="modal" id="winner-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="box">
+      <p>Le joueur <span id="winner"></span> a gagné avec <span id="winner-cells"></span> points sur <span id="board-size"></span></p>
+      <p>
+        <a class="button is-success" id="goHome" href="/">Aller au menu</a>
+        <button class="button" id="view-board">Voir le plateau</button>
+      </p>
+    </div>
+  </div>
+  
+  <button class="modal-close is-large" id="close-modal" aria-label="close"></button>
+  </footer>
+</div>
 {% endblock %}
 {% block js %}
 <script>
@@ -16,6 +32,7 @@
   window.boardString = "{{game_state.board}}";
   window.board = [];
   window.players ={{game_state.players}};
+  window.winner = {{game_state.winner}};
 </script>
 <script src="{{url_for('static', filename='js/game.js')}}"></script>
 {% endblock %}

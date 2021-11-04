@@ -82,43 +82,17 @@ function placePlayer(player, [x, y]) {
   boardCase.innerText = player;
 }
 
-async function caseTrigger(movement) {
-  if (canSendMovement) {
-    canSendMovement = false;
-    try {
-      const response = await fetch(`/game/${window.gameID}`, {
-        method: "POST",
-        body: JSON.stringify({ movement }),
-        headers: { "Content-Type": "application/json" },
-      });
-      const body = await response.json();
-      if (response.ok) {
-        window.board = parseBoard(body.board);
-        window.players = body.players;
-        setBoard();
-        // setClickable();
-      } else {
-        bulmaToast.toast({
-          message: body.message,
-          type: "is-danger",
-          position: "top-center",
-        });
-        console.log(body);
-      }
-    } catch (err) {
-      bulmaToast.toast({
-        message: "Une erreur inconnue est survenue",
-        type: "is-danger",
-        position: "top-center",
-      });
-      console.error(err);
-    } finally {
-      canSendMovement = true;
+function countCases(winner, board) {
+  let nbPoints = 0;
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] == winner) {
+      nbPoints++;
     }
   }
+  return nbPoints;
 }
 
-document.addEventListener("keydown", (event) => {
+function reactOnEvent(event) {
   const [x, y] = window.players[0];
   const key = event.code;
   switch (key) {
@@ -151,10 +125,85 @@ document.addEventListener("keydown", (event) => {
       }
       break;
   }
-});
+}
+
+function endOfGame(body) {
+  // 0: désactiver les flèches
+  document.removeEventListener("keydown", reactOnEvent);
+
+  // 1: creer le modal dans la page en html
+  // et ds le modal mettre des span avec les joueurs et nb de points
+  const winner = document.getElementById("winner");
+  const winnerCells = document.getElementById("winner-cells");
+  const boardSize = document.getElementById("board-size");
+
+  // 2: actualiser les span avec les bonnes infos
+  winner.innerText = body.winner;
+  winnerCells.innerText = countCases(body.winner, body.board);
+  boardSize.innerText = body.board.length;
+
+  // 3: activer le modal == rajouter une classe is-active au modal
+  toggleModal(true);
+}
+
+async function caseTrigger(movement) {
+  if (canSendMovement) {
+    canSendMovement = false;
+    try {
+      const response = await fetch(`/game/${window.gameID}`, {
+        method: "POST",
+        body: JSON.stringify({ movement }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await response.json();
+      if (response.ok) {
+        window.board = parseBoard(body.board);
+        window.players = body.players;
+        window.winner = body.winner;
+        setBoard();
+        if (body.winner != "0") {
+          endOfGame(body);
+        }
+
+        // setClickable();
+      } else {
+        bulmaToast.toast({
+          message: body.message,
+          type: "is-danger",
+          position: "top-center",
+        });
+        console.log(body);
+      }
+    } catch (err) {
+      bulmaToast.toast({
+        message: "Une erreur inconnue est survenue",
+        type: "is-danger",
+        position: "top-center",
+      });
+      console.error(err);
+    } finally {
+      canSendMovement = true;
+    }
+  }
+}
+
+function toggleModal(state) {
+  const modal = document.getElementById("winner-modal");
+  modal.classList.toggle("is-active", state);
+}
 
 window.addEventListener("DOMContentLoaded", () => {
-  window.board = parseBoard(boardString);
+  window.board = parseBoard(window.boardString);
   setBoard();
+  if (window.winner == 0) {
+    document.addEventListener("keydown", reactOnEvent);
+  }
+  document.getElementById("go-home", () => {
+    window.location.href = "/";
+  });
+  document
+    .getElementById("view-board")
+    .addEventListener("click", () => toggleModal(false));
+
   // setClickable();
 });
