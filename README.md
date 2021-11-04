@@ -22,6 +22,11 @@ Run `pip install -r requirements.txt`
 
 Run `flask init_db`
 
-## run
+# RUN
 
 Run `flask run` or `py run.py`
+
+## User Test
+
+Email: test@test.be
+Password: test
