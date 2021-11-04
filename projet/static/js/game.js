@@ -82,79 +82,17 @@ function placePlayer(player, [x, y]) {
   boardCase.innerText = player;
 }
 
-function endOfGame(winner){
-  // 1: creeer le modal dans la page en html
-  // ds le modal mettre des span avec les joueurs et nb de points
-  // 2: actualiser les span avec les bonnes infos
-  // 3: activer le modal == rajouter une classe is-active au modal
-
-  // if(board.indexOf("0") != -1){
-  //   console.log("La partie continue");
-  // }
-  // else{
-  //   console.log(" !!! la partie est finie !!!")
-
-    // player1Win = 0
-    // player2Win = 0
-    // for(let i=0;i<board.length;i++){
-    //   if(board[i]=="1"){
-    //     player1Win ++;
-    //   }
-    //   else{
-    //     player2Win ++;
-    //   }
-    // }
-    // if(player1Win>player2Win){
-    //   // alert(` Player 1 Victory ! \n Avec ${player1Win} points, contre ${player2Win} points pour le joueur 2`)
-      
-    // }
-    // else{
-    //   // alert(` Player 2 Victory ! \n Avec ${player2Win} points, contre ${player1Win} points pour le joueur 1`)
-    // }
-  // }
-}
-
-async function caseTrigger(movement) {
-  if (canSendMovement) {
-    canSendMovement = false;
-    try {
-      const response = await fetch(`/game/${window.gameID}`, {
-        method: "POST",
-        body: JSON.stringify({ movement }),
-        headers: { "Content-Type": "application/json" },
-      });
-      const body = await response.json();
-      if (response.ok) {
-        window.board = parseBoard(body.board);
-        window.players = body.players;
-        setBoard();
-        if(body.winner!="0"){
-          endOfGame(body.winner);
-        }
-        
-        // setClickable();
-      } else {
-        bulmaToast.toast({
-          message: body.message,
-          type: "is-danger",
-          position: "top-center",
-        });
-        console.log(body);
-      }
-    } catch (err) {
-      bulmaToast.toast({
-        message: "Une erreur inconnue est survenue",
-        type: "is-danger",
-        position: "top-center",
-      });
-      console.error(err);
-    } finally {
-      canSendMovement = true;
+function countCases(winner, board){
+  nbPoints=0;
+  for(let i=0; i<board.length;i++){
+    if(board[i]==winner){
+      nbPoints++;
     }
   }
+  return nbPoints;
 }
 
-document.addEventListener("keydown", (event) => {
+function reactOnEvent(event) {
   const [x, y] = window.players[0];
   const key = event.code;
   switch (key) {
@@ -187,9 +125,70 @@ document.addEventListener("keydown", (event) => {
       }
       break;
   }
-});
+}
 
+function endOfGame(body){
+  // 0: désactiver les flèches
+  document.removeEventListener("keydown",reactOnEvent);
 
+  // 1: creer le modal dans la page en html
+  // et ds le modal mettre des span avec les joueurs et nb de points
+  winnerModal = document.getElementsByClassName("modal-content");
+  paraSpan = document.createElement("p");
+  balSpan = document.createElement("span");
+  balSpan.className = "victory";
+  paraSpan.appendChild(balSpan);
+  winnerModal[0].appendChild(paraSpan);
+
+  // 2: actualiser les span avec les bonnes infos
+  balSpan.innerText = " Le joueur " + body.winner + " a gagné avec " + countCases(body.winner, body.board) + " points sur " + body.board.length;
+
+  // 3: activer le modal == rajouter une classe is-active au modal
+  modal = document.getElementsByClassName("modal");
+  modal[0].classList.add("is-active");
+}
+
+async function caseTrigger(movement) {
+  if (canSendMovement) {
+    canSendMovement = false;
+    try {
+      const response = await fetch(`/game/${window.gameID}`, {
+        method: "POST",
+        body: JSON.stringify({ movement }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await response.json();
+      if (response.ok) {
+        window.board = parseBoard(body.board);
+        window.players = body.players;
+        setBoard();
+        if(body.winner!="0"){
+          endOfGame(body);
+        }
+        
+        // setClickable();
+      } else {
+        bulmaToast.toast({
+          message: body.message,
+          type: "is-danger",
+          position: "top-center",
+        });
+        console.log(body);
+      }
+    } catch (err) {
+      bulmaToast.toast({
+        message: "Une erreur inconnue est survenue",
+        type: "is-danger",
+        position: "top-center",
+      });
+      console.error(err);
+    } finally {
+      canSendMovement = true;
+    }
+  }
+}
+
+document.addEventListener("keydown", reactOnEvent);
 
 window.addEventListener("DOMContentLoaded", () => {
   window.board = parseBoard(boardString);

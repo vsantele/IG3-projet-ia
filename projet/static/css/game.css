@@ -23,3 +23,8 @@ td {
 .clickable {
   background-color: rgba(255, 0, 0, 0.5);
 }
+
+.victory{
+  background-color: black;
+  color : white;
+}
