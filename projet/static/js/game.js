@@ -82,10 +82,10 @@ function placePlayer(player, [x, y]) {
   boardCase.innerText = player;
 }
 
-function countCases(winner, board){
-  let nbPoints=0;
-  for(let i=0; i<board.length;i++){
-    if(board[i]==winner){
+function countCases(winner, board) {
+  let nbPoints = 0;
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] == winner) {
       nbPoints++;
     }
   }
