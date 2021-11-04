@@ -83,7 +83,7 @@ function placePlayer(player, [x, y]) {
 }
 
 function countCases(winner, board){
-  nbPoints=0;
+   let nbPoints=0;
   for(let i=0; i<board.length;i++){
     if(board[i]==winner){
       nbPoints++;
