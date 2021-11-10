@@ -2,9 +2,9 @@
 
 Projet IA Henallux Bloc 3 Option Data Science
 
-# SETUP
+# Setup
 
-## Setup Dotenv file
+## Setup dotenv file
 
 Create a file `.env` and add all environment variables that are in `sample.env` to it with valid value.
 
@@ -18,15 +18,15 @@ Activate de venv with `venv\Scripts\activate` on Windows and `source venv/bin/ac
 
 Run `pip install -r requirements.txt`
 
-## Initialize Database
+## Initialize database
 
 Run `flask init_db`
 
-# RUN
+# Run
 
 Run `flask run` or `py run.py`
 
-## User Test
+## User test
 
 Email: test@test.be
 Password: test
