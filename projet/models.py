@@ -11,7 +11,7 @@ from .exceptions import (
     InvalidPlayerException,
     InvalidPositionException,
 )
-from .utils import fill_paddock
+from .utils import fill_paddock, is_movement_valid
 
 db = SQLAlchemy()
 
@@ -207,3 +207,34 @@ class Game(db.Model):
             self._update_board(self.board, pos, 1)
         else:
             self._update_board(self.board, pos, 2)
+
+
+class Qtable(db.Model):
+    """
+    Qtable model
+
+    Args :
+        state (str): this is the state of the current game, contain board(25), pos_player_1(2), pos_player_2(2), and turn(1)
+            => 30 caracters => "100000000000000000000000200441" for ex
+        up (int): value of the reward for this direction at T time
+        down (int): value of the reward for this direction at T time
+        left (int): value of the reward for this direction at T time
+        right (int): value of the reward for this direction at T time
+    """
+
+    state = db.Column(db.String(30), primary_key=True)
+    up = db.Column(db.Float, nullable=False)
+    down = db.Column(db.Float, nullable=False)
+    left = db.Column(db.Float, nullable=False)
+    right = db.Column(db.Float, nullable=False)
+
+
+class History(db.Model):
+
+    game_id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(30), nullable=False)
+    movement = db.Column(
+        db.String(1),
+        db.CheckConstraint(r"movement IN ('u','d','l','r')"),
+        nullable=False,
+    )  # movement  = 'u' 'd' 'l' 'r'

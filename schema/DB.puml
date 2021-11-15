@@ -1,5 +1,6 @@
 @startuml database
 
+hide circle
 
 entity Game{
     id
@@ -22,18 +23,32 @@ entity User{
     
 }
 
+entity QTable {
+    *state
+    *up
+    *down
+    *left
+    *right
+}
+
+entity History {
+    *game_id
+    *state
+    *movement
+}
+
 
 Game }o--|{ User
-note left
-à voir si on garde le
-Many To Many
-pour les relations
---
-joachim :
-oui puisqu'on aura toujours 
-soit 2 joueurs l'un contre l'autre -> 2
-soit 1 joueur contre ia -> 1
-soit 2 ia -> 0
-end note
+' note left
+' à voir si on garde le
+' Many To Many
+' pour les relations
+' --
+' joachim :
+' oui puisqu'on aura toujours 
+' soit 2 joueurs l'un contre l'autre -> 2
+' soit 1 joueur contre ia -> 1
+' soit 2 ia -> 0
+' end note
 
 @enduml

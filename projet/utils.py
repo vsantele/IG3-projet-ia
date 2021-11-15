@@ -189,27 +189,24 @@ def _check_other_color(
     return any(checked)
 
 
-# check_direction
-# return a boolean if the direction is usable
-# in the position of the player
-def validation_and_move(board, pos_x, pos_y, move, other_player_color):
-    if move == "left":
-        is_valid = pos_x > 0 and board[pos_y][pos_x - 1] != other_player_color
-        if is_valid:
-            pos_x = pos_x - 1
-    elif move == "right":
-        is_valid = pos_x < 4 and board[pos_y][pos_x + 1] != other_player_color
-        if is_valid:
-            pos_x = pos_x + 1
-    elif move == "up":
-        is_valid = pos_y > 0 and board[pos_y - 1][pos_x] != other_player_color
-        if is_valid:
-            pos_y = pos_y - 1
-    elif move == "down":
-        is_valid = pos_y < 4 and board[pos_y + 1][pos_x] != other_player_color
-        if is_valid:
-            pos_y = pos_y + 1
-    return is_valid, pos_x, pos_y
+def is_movement_valid(board, player, player_pos, movement):
+    """Check if the movement is valid.
+
+
+    Args:
+        board (List[List[int]]): board
+        player (int): player
+        movement (tuple): movement
+    """
+    x, y = player_pos
+    dx, dy = movement
+    return (
+        x + dx >= 0
+        and x + dx < len(board)
+        and y + dy >= 0
+        and y + dy < len(board)
+        and board[y + dy][x + dx] in (0, player)
+    )
 
 
 def move_converted(move):
