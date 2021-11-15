@@ -5,5 +5,5 @@
   "python.testing.pytestEnabled": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": false
-  } 
+  }
 }
