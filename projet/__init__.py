@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_login import LoginManager
-from .models import db, init_db, User
-from .views import game_bp, auth_bp
+
+from .models import User, db, init_db
+from .views import auth_bp, game_bp
 
 # APP SETUP
 

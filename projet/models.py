@@ -1,7 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
 import logging as lg
 from datetime import date
+
+from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()

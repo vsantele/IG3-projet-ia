@@ -2,20 +2,19 @@ from flask import (
     Blueprint,
     Flask,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
     url_for,
-    jsonify,
 )
 from flask_login import current_user, login_required, login_user, logout_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, validation_and_move, fill_paddock
-
-from .models import db, User, Game
+from projet.utils import fill_paddock, is_email_valid, validation_and_move
 
 from .ai import get_move
+from .models import Game, User, db
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
