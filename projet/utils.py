@@ -188,6 +188,7 @@ def _check_other_color(
         checked.append(_check_other_color(board, x, y + 1, color))
     return any(checked)
 
+
 def is_movement_valid(board, player, player_pos, movement):
     """Check if the movement is valid.
 
@@ -199,7 +200,14 @@ def is_movement_valid(board, player, player_pos, movement):
     """
     x, y = player_pos
     dx, dy = movement
-    return  x + dx >= 0 and x + dx < len(board) and y + dy >= 0 and y + dy < len(board) and board[y + dy][x + dx] in (0, player)
+    return (
+        x + dx >= 0
+        and x + dx < len(board)
+        and y + dy >= 0
+        and y + dy < len(board)
+        and board[y + dy][x + dx] in (0, player)
+    )
+
 
 def move_converted(move):
     """Convert direction to coordinates.

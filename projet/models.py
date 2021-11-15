@@ -137,7 +137,8 @@ class Game(db.Model):
     def pos_player_1(self, pos):
         """Set the player 1 's position"""
         x, y = pos
-        if ((x < 0 or x >= self.size)
+        if (
+            (x < 0 or x >= self.size)
             or (y < 0 or y >= self.size)
             or (self.board_array[y][x] not in (0, 1))
         ):
@@ -207,6 +208,7 @@ class Game(db.Model):
         else:
             self._update_board(self.board, pos, 2)
 
+
 class Qtable(db.Model):
     """
     Qtable model
@@ -228,7 +230,11 @@ class Qtable(db.Model):
 
 
 class History(db.Model):
-    
+
     game_id = db.Column(db.Integer, primary_key=True)
     state = db.Column(db.String(30), nullable=False)
-    movement = db.Column(db.String(1), db.CheckConstraint(r"movement IN ('u','d','l','r')"), nullable=False ) # movement  = 'u' 'd' 'l' 'r'
+    movement = db.Column(
+        db.String(1),
+        db.CheckConstraint(r"movement IN ('u','d','l','r')"),
+        nullable=False,
+    )  # movement  = 'u' 'd' 'l' 'r'
