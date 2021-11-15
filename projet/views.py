@@ -1,3 +1,5 @@
+import logging as lg
+
 from flask import (
     Blueprint,
     Flask,
@@ -14,7 +16,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from projet.utils import fill_paddock, is_email_valid, validation_and_move
 
 from .ai import get_move
+from .exceptions import (
+    GameFinishedException,
+    InvalidMoveException,
+    InvalidPlayerException,
+    InvalidPositionException,
+)
 from .models import Game, User, db
+from .utils import move_converted
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -61,84 +70,60 @@ def game(game_id):
         return redirect(url_for("game.index"))
     if request.method == "POST":
         if current_game.is_finished:
-            res = jsonify(message="La partie est finie")
+            res = jsonify(message="The game is finished.")
             res.status = 400
             return res
 
-        # lire le JSOn
+        # read the JSON
         body = request.get_json()
         if body is None or "movement" not in body:
-            res = jsonify(message="Requête non valide")
+            res = jsonify(message="Request is not valid.")
             res.status = 400
             return res
 
-        move = body["movement"]
-        if move not in ("left", "right", "up", "down"):
-            res = jsonify(message="Mouvment inconnu")
+        direction = body["movement"]
+        if direction not in ("left", "right", "up", "down"):
+            res = jsonify(message="Unknow Movement")
             res.status = 400
             return res
 
-        # vérifier que le mouvement est valide par rapport au board
-        board = current_game.board_array
-        pos_x = current_game.pos_player1_X
-        pos_y = current_game.pos_player1_Y
-        is_autorised_move, new_pos_x, new_pos_y = validation_and_move(
-            board, pos_x, pos_y, move, 2
-        )
+        move = move_converted(direction)
 
-        # ajouter le move ds la partie
-        if not is_autorised_move:
-            res = jsonify(message="Mouvement non valide")
+        try:
+            current_game.move(move, 1)
+        except InvalidMoveException:
+            res = jsonify(message="Unknow Movement")
             res.status = 400
             return res
-        # bouger le joueur
-        current_game.pos_player1_X = new_pos_x
-        current_game.pos_player1_Y = new_pos_y
-        board[new_pos_y][
-            new_pos_x
-        ] = 1  # if you take that it 's the first and only player
-        # update le board
-        board = fill_paddock(board)
+        except InvalidPositionException:
+            res = jsonify(message="Movement is not valid")
+            res.status = 400
+            return res
+        except Exception as e:
+            lg.error(e)
+            res = jsonify(message="Unknown Error")
+            res.status = 500
+            return res
 
         if current_game.vs_ai:
             # AI MOVE
-            ai_move = get_move(current_game)
-            is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
-                board,
-                current_game.pos_player2_X,
-                current_game.pos_player2_Y,
-                ai_move,
-                1,
-            )
-            while not is_autorised_move:
-                ai_move = get_move(current_game)
-                is_autorised_move, new_pos_AI_x, new_pos_AI_y = validation_and_move(
-                    board,
-                    current_game.pos_player2_X,
-                    current_game.pos_player2_Y,
-                    ai_move,
-                    1,
-                )
+            while True:
+                try:
+                    ai_move = get_move(current_game)
+                    current_game.move(ai_move, 2)
+                    break
+                except GameFinishedException:
+                    break
+                except Exception:
+                    continue
 
-            current_game.pos_player2_X = new_pos_AI_x
-            current_game.pos_player2_Y = new_pos_AI_y
-            board[new_pos_AI_y][new_pos_AI_x] = 2
-            board = fill_paddock(board)
-
-        # parser le board en string de stockage
-        board_str = Game.board_to_string(board)
-
-        # update current_board.board
-        current_game.board = board_str
-
-        # mettre à jour
         db.session.commit()
-        # renvoyer un json avec les infos de jeux update
+
         return jsonify(
-            board=board_str,
+            board=current_game.board,
             players=[
-                [new_pos_x, new_pos_y],
-                [current_game.pos_player2_X, current_game.pos_player2_Y],
+                current_game.pos_player_1,
+                current_game.pos_player_2,
             ],
             winner=current_game.winner,
         )
@@ -149,8 +134,8 @@ def game(game_id):
             "game_id": current_game.id,
             "board": current_game.board,
             "players": [
-                [current_game.pos_player1_X, current_game.pos_player1_Y],
-                [current_game.pos_player2_X, current_game.pos_player2_Y],
+                list(current_game.pos_player_1),
+                list(current_game.pos_player_2),
             ],
             "winner": current_game.winner,
         },

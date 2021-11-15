@@ -5,6 +5,14 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 
+from .exceptions import (
+    GameFinishedException,
+    InvalidMoveException,
+    InvalidPlayerException,
+    InvalidPositionException,
+)
+from .utils import fill_paddock
+
 db = SQLAlchemy()
 
 
@@ -59,6 +67,7 @@ class Game(db.Model):
         pos_player2_Y (int): Y position of player 2
     """
 
+    size = 5
     id = db.Column(db.Integer, primary_key=True)
     datetime = db.Column(db.Date, nullable=False, default=date.today())
 
@@ -75,10 +84,10 @@ class Game(db.Model):
     board = db.Column(
         db.String(256), nullable=False, default="1000000000000000000000002"
     )
-    pos_player1_X = db.Column(db.Integer, nullable=False, default=0)
-    pos_player1_Y = db.Column(db.Integer, nullable=False, default=0)
-    pos_player2_X = db.Column(db.Integer, nullable=False, default=4)
-    pos_player2_Y = db.Column(db.Integer, nullable=False, default=4)
+    pos_player_1_x = db.Column(db.Integer, nullable=False, default=0)
+    pos_player_1_y = db.Column(db.Integer, nullable=False, default=0)
+    pos_player_2_x = db.Column(db.Integer, nullable=False, default=4)
+    pos_player_2_y = db.Column(db.Integer, nullable=False, default=4)
 
     @staticmethod
     def board_to_string(board):
@@ -88,7 +97,14 @@ class Game(db.Model):
     @property
     def board_array(self):
         """Convert board to double array"""
-        return [[int(self.board[x * 5 + y]) for y in range(0, 5)] for x in range(0, 5)]
+        return [
+            [int(self.board[x * self.size + y]) for y in range(0, self.size)]
+            for x in range(0, self.size)
+        ]
+
+    def _update_board(self, x, y, value):
+        pos = y * 5 + x
+        self.board = self.board[:pos] + str(value) + self.board[pos + 1 :]
 
     @property
     def is_finished(self):
@@ -111,3 +127,83 @@ class Game(db.Model):
         nb_cell_1 = self.board.count("1")
         nb_cell_2 = self.board.count("2")
         return 1 if nb_cell_1 > nb_cell_2 else 2
+
+    @property
+    def pos_player_1(self):
+        """Return the player 1 's position"""
+        return self.pos_player_1_x, self.pos_player_1_y
+
+    @pos_player_1.setter
+    def pos_player_1(self, pos):
+        """Set the player 1 's position"""
+        x, y = pos
+        if (
+            (x < 0 or x >= self.size)
+            or (y < 0 or y >= self.size)
+            or (self.board_array[y][x] not in (0, 1))
+        ):
+            raise InvalidPositionException(x, y)
+        self.pos_player_1_x = x
+        self.pos_player_1_y = y
+
+    @property
+    def pos_player_2(self):
+        """Return the player 2 's position"""
+        return self.pos_player_2_x, self.pos_player_2_y
+
+    @pos_player_2.setter
+    def pos_player_2(self, pos):
+        """Set the player 2 's position"""
+        x, y = pos
+        if (
+            (x < 0 or x >= self.size)
+            or (y < 0 or y >= self.size)
+            or (self.board_array[y][x] not in (0, 2))
+        ):
+            raise InvalidPositionException(x, y)
+        self.pos_player_2_x = x
+        self.pos_player_2_y = y
+
+    def move(self, move, player):
+        """Move the player and update the board
+
+        Args:
+            move (tuple): (x, y) of the move
+            player (int): Number of the player who's turn it is
+        """
+        if self.is_finished:
+            raise GameFinishedException()
+        if any(x not in (0, 1, -1) for x in move):
+            raise InvalidMoveException(move[0], move[1])
+        if player not in (1, 2):
+            raise InvalidPlayerException(player)
+        x_move, y_move = move
+        if player == 1:
+            x, y = self.pos_player_1
+            new_x, new_y = x + x_move, y + y_move
+            self.pos_player_1 = new_x, new_y
+            self._update_board(new_x, new_y, 1)
+        else:
+            x, y = self.pos_player_2
+            new_x, new_y = x + x_move, y + y_move
+            self.pos_player_2 = new_x, new_y
+            self._update_board(new_x, new_y, 2)
+        self.board = self.board_to_string(fill_paddock(self.board_array, self.size))
+        db.session.commit()
+
+    def update_board(self, player, pos):
+        """Update the board with the player's move
+
+        Args:
+            player (int): Number of the player who's turn it is
+            pos (tuple): (x, y) of the player
+        """
+        if player not in (1, 2):
+            raise InvalidPlayerException(player)
+        if any(x not in (0, 1, -1) for x in pos):
+            raise InvalidMoveException(pos[0], pos[1])
+
+        if player == 1:
+            self._update_board(self.board, pos, 1)
+        else:
+            self._update_board(self.board, pos, 2)
