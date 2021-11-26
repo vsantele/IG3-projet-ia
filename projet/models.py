@@ -89,6 +89,13 @@ class Game(db.Model):
     pos_player_2_x = db.Column(db.Integer, nullable=False, default=4)
     pos_player_2_y = db.Column(db.Integer, nullable=False, default=4)
 
+    current_player = db.Column(
+        db.Integer,
+        db.CheckConstraint(r"current_player IN (1, 2)"),
+        nullable=False,
+        default=0,
+    )
+
     @staticmethod
     def board_to_string(board):
         """Convert board to string"""
@@ -231,11 +238,12 @@ class Qtable(db.Model):
 
 class History(db.Model):
 
-    game_id = db.Column(db.Integer, primary_key=True)
-    currentPlayer = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.Integer, nullable=False)
+    current_player = db.Column(db.Integer, nullable=False)
     state = db.Column(db.String(30), nullable=False)
     movement = db.Column(
         db.String(1),
         db.CheckConstraint(r"movement IN ('u','d','l','r')"),
         nullable=False,
     )  # movement  = 'u' 'd' 'l' 'r'
+    db.PrimaryKeyConstraint(game_id, current_player, name="history_pk")

@@ -218,11 +218,11 @@ def move_converted(move):
     Returns:
         tuple: the coordinates of the direction
     """
-    if move == "left":
+    if move == "left" or move == "l":
         return (-1, 0)
-    elif move == "right":
+    elif move == "right" or move == "r":
         return (1, 0)
-    elif move == "up":
+    elif move == "up" or move == "u":
         return (0, -1)
-    elif move == "down":
+    elif move == "down" or move == "d":
         return (0, 1)

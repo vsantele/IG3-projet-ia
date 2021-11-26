@@ -42,7 +42,7 @@ currentPlayer
 end note
 
 entity History {
-    *game_id
+    *gameId
     *currentPlayer
     --
     *state
