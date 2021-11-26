@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from models import Qtable, History
+from .models import Qtable, History
 
 from .utils import is_movement_valid
 
