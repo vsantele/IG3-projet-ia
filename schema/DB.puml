@@ -3,36 +3,48 @@
 hide circle
 
 entity Game{
-    id
-    datetime
-    board 
-    playerTurn
-    posPlayer1X
-    posPlayer1Y
-    posPlayer2X
-    posPlayer2Y
+    *id
+    --
+    *datetime
+    *board
+    *playerTurn
+    *posPlayer1X
+    *posPlayer1Y
+    *posPlayer2X
+    *posPlayer2Y
 }
 
 
 entity User{
-    *id 
+    *id
+    --
     *isHuman: bool
     email
-    name 
+    name
     password
-    
+
 }
 
 entity QTable {
     *state
+    --
     *up
     *down
     *left
     *right
 }
+note bottom
+state =
+board +
+posPlayer1 +
+posPlayer2 +
+currentPlayer
+end note
 
 entity History {
     *game_id
+    *currentPlayer
+    --
     *state
     *movement
 }
@@ -45,7 +57,7 @@ Game }o--|{ User
 ' pour les relations
 ' --
 ' joachim :
-' oui puisqu'on aura toujours 
+' oui puisqu'on aura toujours
 ' soit 2 joueurs l'un contre l'autre -> 2
 ' soit 1 joueur contre ia -> 1
 ' soit 2 ia -> 0
