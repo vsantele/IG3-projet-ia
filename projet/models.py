@@ -232,6 +232,7 @@ class Qtable(db.Model):
 class History(db.Model):
 
     game_id = db.Column(db.Integer, primary_key=True)
+    currentPlayer = db.Column(db.Integer, nullable=False)
     state = db.Column(db.String(30), nullable=False)
     movement = db.Column(
         db.String(1),
