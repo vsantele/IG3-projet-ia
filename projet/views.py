@@ -90,7 +90,7 @@ def game(game_id):
         try:
             current_game.move(move, 1)
         except InvalidMoveException:
-            res = jsonify(message="Unknow Movement")
+            res = jsonify(message="Unknown Movement")
             res.status = 400
             return res
         except InvalidPositionException:
@@ -112,8 +112,8 @@ def game(game_id):
                     break
                 except GameFinishedException:
                     break
-                except Exception:
-                    continue
+                # except Exception e:
+                #     continue
 
         db.session.commit()
 

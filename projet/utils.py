@@ -1,4 +1,7 @@
 import re
+import time
+import logging as lg
+
 from typing import List
 
 
@@ -226,3 +229,30 @@ def move_converted(move):
         return (0, -1)
     elif move == "down" or move == "d":
         return (0, 1)
+
+
+def called(func):
+    """Decorator to log when a function is called.
+
+    Args:
+        func (function): function to log
+    """
+
+    def wrapper(*args, **kwargs):
+        lg.debug("{} called".format(func.__name__))
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def timer(func):
+    """Decorator to log the time taken by a function"""
+
+    def wrapper(*args, **kwargs):
+        start = time.time() * 1000
+        result = func(*args, **kwargs)
+        end = time.time() * 1000
+        lg.debug("{} took {} ms".format(func.__name__, end - start))
+        return result
+
+    return wrapper

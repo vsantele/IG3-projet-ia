@@ -7,7 +7,8 @@ class Error(Exception):
 class InvalidPositionException(Exception):
     """Exception raised by an invalid move
     Attirbutes :
-        message (str): the message that we should push to the view to inform the user
+        x (int): x position of the player
+        y (int): y position of the player
     """
 
     def __init__(self, x, y):
@@ -21,7 +22,7 @@ class InvalidPositionException(Exception):
 class InvalidPlayerException(Exception):
     """Exception raised by an invalid player
     Attirbutes :
-        message (str): the message that we should push to the view to inform the user
+        player (int): the invalid player numbers
     """
 
     def __init__(self, player):
@@ -32,10 +33,7 @@ class InvalidPlayerException(Exception):
 
 
 class GameFinishedException(Exception):
-    """Exception raised by a finished game
-    Attirbutes :
-        message (str): the message that we should push to the view to inform the user
-    """
+    """Exception raised by a finished game"""
 
     def __str__(self):
         return "The game is finished"
@@ -44,7 +42,8 @@ class GameFinishedException(Exception):
 class InvalidMoveException(Exception):
     """Exception raised by an invalid move
     Attirbutes :
-        message (str): the message that we should push to the view to inform the user
+        x (int): the x coordinate of the move
+        y (int): the y coordinate of the move
     """
 
     def __init__(self, x, y):
@@ -53,3 +52,16 @@ class InvalidMoveException(Exception):
 
     def __str__(self):
         return "Move ({},{}) is not valid.".format(self.x, self.y)
+
+
+class InvalidActionException(Exception):
+    """Exception raised by an invalid action
+    Attirbutes :
+        action (str): the invalid action
+    """
+
+    def __init__(self, action):
+        self.action = action
+
+    def __str__(self):
+        return "Action {} is not valid.".format(self.action)

@@ -3,7 +3,7 @@ import numpy as np
 from sqlalchemy.orm.query import Query
 from .models import db, Qtable, History
 
-from .utils import is_movement_valid, move_converted
+from .utils import is_movement_valid, move_converted, timer, called
 
 """
 For the Qtable
@@ -18,6 +18,8 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 movements = {"u": (0, -1), "d": (0, 1), "l": (-1, 0), "r": (1, 0)}
 
 
+@called
+@timer
 def get_move(game_state):
     """From game_state return the best move"""
     eps = 0.5
@@ -25,34 +27,47 @@ def get_move(game_state):
 
     # 1. recup de l'historique, et mise à jour dans la QTable
     # en fonction du mouvement
-    old_state, old_movement = previous_state(
-        game_state.game_id, game_state.current_player
-    )
-
     new_state = state(game_state)
-
-    # attention, vérifier en cas de création peut-être + quand premier tour
-    # current_state_qtable_line
-    q_old_state = q_state(old_state)
     q_new_state = q_state(new_state)
 
-    rew = reward(old_state, new_state, game_state.current_player)
+    old_state = previous_state(game_state.id, game_state.current_player)
+    if old_state is not None:
 
-    q_old_state = update(old_movement, q_old_state, q_new_state, rew)
-    db.session.commit()
+        # attention, vérifier en cas de création peut-être + quand premier tour
+        # current_state_qtable_line
+        q_old_state = q_state(old_state.state)
 
+        rew = reward(old_state.state, new_state, game_state.current_player)
+
+        update(old_state.movement, q_old_state, q_new_state, rew)
+        db.session.commit()
     # 2. choisir le mvt
-
     # pourquoi is not None?
-    if q_old_state is not None and random.uniform(0, 1) < eps:  # explore
-        return random_action(game_state.board_array, game_state.pos_player_2, 2)
+    # if q_old_state is not None and random.uniform(0, 1) < eps:  # explore
+    if random.uniform(0, 1) < eps:  # explore
+        movement = random_action(game_state.board_array, game_state.pos_player_2, 2)
 
     else:  # exploit
-        return move_converted(best_move(q_new_state))
+        movement = move_converted(best_move(q_new_state))
 
     # 3. mettre à jour le nouvel état ds l'historique
+    if old_state is None:
+        old_state = History(
+            game_id=game_state.id,
+            current_player=game_state.current_player,
+            state=new_state,
+            movement=movement,
+        )
+    else:
+        old_state.state = new_state
+        old_state.current_player = game_state.current_player
+        old_state.movement = movement
+    db.session.add(old_state)
+    db.session.commit()
+    return move_converted(movement)
 
 
+@called
 def random_action(board, pos_player, player=2):
     choices = []
     if is_movement_valid(board, player, pos_player, (0, 1)):
@@ -66,13 +81,15 @@ def random_action(board, pos_player, player=2):
     return random.choice(choices)
 
 
+@called
 def update(action, q_old_state, q_new_state, reward):
     alpha = learning_rate()
     gamma = discount_factor()
 
-    return q_old_state[action] + alpha * (
-        reward + gamma * r_max(q_new_state) - q_old_state[action]
+    reward = q_old_state.get_reward(action) + alpha * (
+        reward + gamma * r_max(q_new_state) - q_old_state.get_reward(action)
     )
+    q_old_state.set_reward(action, reward)
 
 
 # learning_fact
@@ -94,6 +111,7 @@ def discount_factor():
     return 0.5
 
 
+@called
 def reward(old_state, new_state, player):
     """calculate the reward based on the evolution of the board
 
@@ -108,8 +126,8 @@ def reward(old_state, new_state, player):
     Returns:
         reward: the reward of the previous action
     """
-    old_board, _ = state_parsed(old_state)
-    new_board, _ = state_parsed(new_state)
+    old_board, _, _, _ = state_parsed(old_state)
+    new_board, _, _, _ = state_parsed(new_state)
 
     reward = 0
 
@@ -123,6 +141,7 @@ def reward(old_state, new_state, player):
     return reward
 
 
+@called
 def previous_state(game_id, current_player):
     """Get previous state from the database
 
@@ -134,10 +153,11 @@ def previous_state(game_id, current_player):
         state: the state of the game
         movement: the movement of the player
     """
-    previous = History.query.get((game_id, current_player)).first()
-    return previous.state, previous.movement
+    previous = History.query.get((game_id, current_player))
+    return previous
 
 
+@called
 def state_parsed(state):
     """retreive state information from the string
 
@@ -151,8 +171,12 @@ def state_parsed(state):
         int: turn: the player who has to play.
     """
     board = state[:25]
-    pos_player1 = map(lambda x: int(x), state[25:27].split(""))
-    pos_player2 = map(lambda x: int(x), state[27:29].split(""))
+    p1_x = int(state[25])
+    p1_y = int(state[26])
+    p2_x = int(state[27])
+    p2_y = int(state[28])
+    pos_player1 = p1_x, p1_y
+    pos_player2 = p2_x, p2_y
     turn = int(state[29])
     return board, pos_player1, pos_player2, turn
 
@@ -198,7 +222,7 @@ def state(game_state):
     board = game_state.board
     pos_player_1 = game_state.pos_player_1
     pos_player_2 = game_state.pos_player_2
-    turn = game_state.player_turn
+    turn = game_state.current_player
     return (
         board
         + str(pos_player_1[0])
@@ -209,6 +233,7 @@ def state(game_state):
     )
 
 
+@called
 def q_state(state):
     """Retreive the qtable line for the state if it exists.
     Otherwise create it and return it.
@@ -221,22 +246,10 @@ def q_state(state):
     """
     q = Qtable.query.get(state)
     if q is None:
-        q = Qtable(state, 0, 0, 0, 0)
+        q = Qtable(state=state)
         db.session.add(q)
         db.session.commit()
     return q
-
-
-def r_max(q_line):
-    """the max reward value for the line.
-
-    Args:
-        q_line (Qtable): a line of the qtable
-
-    Returns:
-        float: the max reward value
-    """
-    return max(q_line["u"], q_line["r"], q_line["d"], q_line["l"])
 
 
 def best_move(q_line):

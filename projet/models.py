@@ -10,6 +10,7 @@ from .exceptions import (
     InvalidMoveException,
     InvalidPlayerException,
     InvalidPositionException,
+    InvalidActionException,
 )
 from .utils import fill_paddock, is_movement_valid
 
@@ -60,7 +61,7 @@ class Game(db.Model):
         vs_ai (boolean): True if user 2 is an AI, False otherwise
         # user_id_2 (int): User 2's id
         board (string): Board's state
-        player_turn (int): Number of the player who's turn it is
+        current_player (int): Number of the player who's turn it is
         pos_player1_X (int): X position of player 1
         pos_player1_Y (int): Y position of player 1
         pos_player2_X (int): X position of player 2
@@ -93,7 +94,7 @@ class Game(db.Model):
         db.Integer,
         db.CheckConstraint(r"current_player IN (1, 2)"),
         nullable=False,
-        default=0,
+        default=1,
     )
 
     @staticmethod
@@ -190,30 +191,32 @@ class Game(db.Model):
             new_x, new_y = x + x_move, y + y_move
             self.pos_player_1 = new_x, new_y
             self._update_board(new_x, new_y, 1)
+            self.current_player = 2
         else:
             x, y = self.pos_player_2
             new_x, new_y = x + x_move, y + y_move
             self.pos_player_2 = new_x, new_y
             self._update_board(new_x, new_y, 2)
+            self.current_player = 1
         self.board = self.board_to_string(fill_paddock(self.board_array, self.size))
         db.session.commit()
 
-    def update_board(self, player, pos):
-        """Update the board with the player's move
+    # def update_board(self, player, pos):
+    #     """Update the board with the player's move
 
-        Args:
-            player (int): Number of the player who's turn it is
-            pos (tuple): (x, y) of the player
-        """
-        if player not in (1, 2):
-            raise InvalidPlayerException(player)
-        if any(x not in (0, 1, -1) for x in pos):
-            raise InvalidMoveException(pos[0], pos[1])
+    #     Args:
+    #         player (int): Number of the player who's turn it is
+    #         pos (tuple): (x, y) of the player
+    #     """
+    #     if player not in (1, 2):
+    #         raise InvalidPlayerException(player)
+    #     if any(x not in (0, 1, -1) for x in pos):
+    #         raise InvalidMoveException(pos[0], pos[1])
 
-        if player == 1:
-            self._update_board(self.board, pos, 1)
-        else:
-            self._update_board(self.board, pos, 2)
+    #     if player == 1:
+    #         self._update_board(self.board, pos, 1)
+    #     else:
+    #         self._update_board(self.board, pos, 2)
 
 
 class Qtable(db.Model):
@@ -230,10 +233,75 @@ class Qtable(db.Model):
     """
 
     state = db.Column(db.String(30), primary_key=True)
-    up = db.Column(db.Float, nullable=False)
-    down = db.Column(db.Float, nullable=False)
-    left = db.Column(db.Float, nullable=False)
-    right = db.Column(db.Float, nullable=False)
+    up = db.Column(db.Float, nullable=False, default=0)
+    down = db.Column(db.Float, nullable=False, default=0)
+    left = db.Column(db.Float, nullable=False, default=0)
+    right = db.Column(db.Float, nullable=False, default=0)
+
+    def get_reward(self, action):
+        """
+        Return the reward of the action
+
+        Args:
+            action (str): the action to get the reward
+
+        Returns:
+            int: the reward of the action
+        """
+        if action == "u" or action == "up":
+            return self.up
+        elif action == "d" or action == "down":
+            return self.down
+        elif action == "l" or action == "left":
+            return self.left
+        elif action == "r" or action == "right":
+            return self.right
+        else:
+            raise InvalidActionException(action)
+
+    def set_reward(self, action, reward):
+        """
+        Set the reward of the action
+
+        Args:
+            action (str): the action to set the reward
+            reward (float): the reward to set
+        """
+        if action == "u" or action == "up":
+            self.up = reward
+        elif action == "d" or action == "down":
+            self.down = reward
+        elif action == "l" or action == "left":
+            self.left = reward
+        elif action == "r" or action == "right":
+            self.right = reward
+        else:
+            raise InvalidActionException(action)
+
+    def max(self):
+        """
+        Return the max reward
+
+        Returns:
+            float: the max reward of the action
+        """
+        return max(self.up, self.down, self.left, self.right)
+
+    def best(self):
+        """
+        Return the best action
+
+        Returns:
+            str: the best action
+        """
+        if self.up == self.max():
+            return "up"
+        elif self.down == self.max():
+            return "down"
+        elif self.left == self.max():
+            return "left"
+        elif self.right == self.max():
+            return "right"
 
 
 class History(db.Model):

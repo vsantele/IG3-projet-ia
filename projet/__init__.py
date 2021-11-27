@@ -4,10 +4,14 @@ from flask_login import LoginManager
 from .models import User, db, init_db
 from .views import auth_bp, game_bp
 
+import logging as lg
+
 # APP SETUP
 
 app = Flask(__name__)
 app.config.from_object("config")
+
+lg.basicConfig(level=lg.DEBUG)
 
 # IMPORT BLUEPRINT AND REGISTER
 
