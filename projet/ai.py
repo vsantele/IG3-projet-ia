@@ -2,6 +2,7 @@ import random
 import numpy as np
 from sqlalchemy.orm.query import Query
 from .models import db, Qtable, History
+import logging as lg
 
 from .utils import is_movement_valid, move_converted, timer, called
 
@@ -18,8 +19,6 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 movements = {"u": (0, -1), "d": (0, 1), "l": (-1, 0), "r": (1, 0)}
 
 
-@called
-@timer
 def get_move(game_state):
     """From game_state return the best move"""
     eps = 0.5
@@ -45,10 +44,17 @@ def get_move(game_state):
     # pourquoi is not None?
     # if q_old_state is not None and random.uniform(0, 1) < eps:  # explore
     if random.uniform(0, 1) < eps:  # explore
-        movement = random_action(game_state.board_array, game_state.pos_player_2, 2)
+        lg.debug("Explore")
+        movement = random_action(
+            game_state.board_array, (x, y), game_state.current_player
+        )
 
     else:  # exploit
-        movement = move_converted(best_move(q_new_state))
+        lg.debug("Exploit")
+        valid_movements = all_valid_movements(
+            game_state.board_array, game_state.current_player, (x, y)
+        )
+        movement = q_new_state.best(valid_movements)
 
     # 3. mettre à jour le nouvel état ds l'historique
     if old_state is None:
@@ -67,7 +73,6 @@ def get_move(game_state):
     return move_converted(movement)
 
 
-@called
 def random_action(board, pos_player, player=2):
     choices = []
     if is_movement_valid(board, player, pos_player, (0, 1)):
@@ -81,13 +86,12 @@ def random_action(board, pos_player, player=2):
     return random.choice(choices)
 
 
-@called
 def update(action, q_old_state, q_new_state, reward):
     alpha = learning_rate()
     gamma = discount_factor()
 
     reward = q_old_state.get_reward(action) + alpha * (
-        reward + gamma * r_max(q_new_state) - q_old_state.get_reward(action)
+        reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
     )
     q_old_state.set_reward(action, reward)
 
@@ -111,7 +115,6 @@ def discount_factor():
     return 0.5
 
 
-@called
 def reward(old_state, new_state, player):
     """calculate the reward based on the evolution of the board
 
@@ -141,7 +144,6 @@ def reward(old_state, new_state, player):
     return reward
 
 
-@called
 def previous_state(game_id, current_player):
     """Get previous state from the database
 
@@ -157,7 +159,6 @@ def previous_state(game_id, current_player):
     return previous
 
 
-@called
 def state_parsed(state):
     """retreive state information from the string
 
@@ -233,7 +234,6 @@ def state(game_state):
     )
 
 
-@called
 def q_state(state):
     """Retreive the qtable line for the state if it exists.
     Otherwise create it and return it.
@@ -252,24 +252,25 @@ def q_state(state):
     return q
 
 
-def best_move(q_line):
-    """return the movement with the highest reward
+def all_valid_movements(board, player, pos):
+    """Return all valid movements for a player
 
     Args:
-        q_line (Qtable): a line of the qtable
+        board (List[List[int]]): the board
+        player (int): the player number
+        pos (tuple(int,int)): the position of the player
 
     Returns:
-        str: the best movement
+        List[str]: All valid movements
     """
-    best_r = q_line["u"]
-    best_m = "u"
-    if q_line["r"] > best_r:
-        best_r = q_line["r"]
-        best_m = "r"
-    if q_line["d"] > best_r:
-        best_r = q_line["d"]
-        best_m = "d"
-    if q_line["l"] > best_r:
-        best_r = q_line["l"]
-        best_m = "l"
-    return best_m
+
+    movements = []
+    if is_movement_valid(board, player, pos, (0, 1)):
+        movements += ["d"]
+    if is_movement_valid(board, player, pos, (0, -1)):
+        movements += ["u"]
+    if is_movement_valid(board, player, pos, (1, 0)):
+        movements += ["r"]
+    if is_movement_valid(board, player, pos, (-1, 0)):
+        movements += ["l"]
+    return movements

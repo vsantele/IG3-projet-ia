@@ -287,21 +287,22 @@ class Qtable(db.Model):
         """
         return max(self.up, self.down, self.left, self.right)
 
-    def best(self):
+    def best(self, valid_movements):
         """
         Return the best action
 
         Returns:
             str: the best action
         """
-        if self.up == self.max():
-            return "up"
-        elif self.down == self.max():
-            return "down"
-        elif self.left == self.max():
-            return "left"
-        elif self.right == self.max():
-            return "right"
+        max = self.max()
+        if "u" in valid_movements and self.up == max:
+            return "u"
+        elif "d" in valid_movements and self.down == max:
+            return "d"
+        elif "l" in valid_movements and self.left == max:
+            return "l"
+        elif "r" in valid_movements and self.right == max:
+            return "r"
 
 
 class History(db.Model):
