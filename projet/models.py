@@ -1,5 +1,6 @@
 import logging as lg
 from datetime import date
+import random
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -287,22 +288,27 @@ class Qtable(db.Model):
         """
         return max(self.up, self.down, self.left, self.right)
 
-    def best(self, valid_movements):
+    def best(self, valid_movements=["u", "d", "l", "r"]):
         """
         Return the best action
+
+        Args:
+            valid_movements (list, optional): List of all valid moves. Defaults to ["u", "d", "l", "r"].
 
         Returns:
             str: the best action
         """
         max = self.max()
+        bests = []
         if "u" in valid_movements and self.up == max:
-            return "u"
+            bests.append("u")
         elif "d" in valid_movements and self.down == max:
-            return "d"
+            bests.append("d")
         elif "l" in valid_movements and self.left == max:
-            return "l"
+            bests.append("l")
         elif "r" in valid_movements and self.right == max:
-            return "r"
+            bests.append("r")
+        return random.choice(bests)
 
 
 class History(db.Model):
