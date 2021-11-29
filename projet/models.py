@@ -13,7 +13,7 @@ from .exceptions import (
     InvalidPositionException,
     InvalidActionException,
 )
-from .utils import fill_paddock, is_movement_valid
+from .utils import fill_paddock
 
 db = SQLAlchemy()
 
@@ -28,6 +28,9 @@ def init_db():
         name="test", email="test@test.be", password=generate_password_hash("test")
     )
     db.session.add(user)
+
+    ai = Ai()
+    db.session.add(ai)
 
     db.session.commit()
     lg.info("Database initialized !")
@@ -322,3 +325,10 @@ class History(db.Model):
         nullable=False,
     )  # movement  = 'u' 'd' 'l' 'r'
     db.PrimaryKeyConstraint(game_id, current_player, name="history_pk")
+
+
+class Ai(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    epsilon = db.Column(db.Float, nullable=False, default=0.9)
+    learning_rate = db.Column(db.Float, nullable=False, default=0.1)
+    discount_factor = db.Column(db.Float, nullable=False, default=0.5)

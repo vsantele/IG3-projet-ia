@@ -49,6 +49,14 @@ entity History {
     *movement
 }
 
+entity AI {
+    *id
+    --
+    *epsilon
+    *learning_rate
+    *discount_factor
+}
+
 
 Game }o--|{ User
 ' note left

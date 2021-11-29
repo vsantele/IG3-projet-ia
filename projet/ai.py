@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from sqlalchemy.orm.query import Query
-from .models import db, Qtable, History
+from .models import db, Qtable, History, Ai
 import logging as lg
 
 from .utils import is_movement_valid, move_converted, timer, called
@@ -16,12 +16,21 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 
 """
 
-movements = {"u": (0, -1), "d": (0, 1), "l": (-1, 0), "r": (1, 0)}
+
+def get_ai():
+    """Get the ai object
+
+    Returns:
+        Ai: the ai object
+    """
+    # global ai
+    # if ai is None:
+    ai = Ai.query.get(1)
+    return ai
 
 
 def get_move(game_state):
     """From game_state return the best move"""
-    eps = 0.5
     x, y = pos_player(game_state, game_state.current_player)
 
     # 1. recup de l'historique, et mise à jour dans la QTable
@@ -39,15 +48,33 @@ def get_move(game_state):
         rew = reward(old_state.state, new_state, game_state.current_player)
 
         update(old_state.movement, q_old_state, q_new_state, rew)
-        db.session.commit()
     # 2. choisir le mvt
     # pourquoi is not None?
     # if q_old_state is not None and random.uniform(0, 1) < eps:  # explore
-    if random.uniform(0, 1) < eps:  # explore
+    """
+        To chose the movement, we need to consider that the Ai will learn during the game
+        but continue to take some random choices.
+
+        To illustrate that, at the start, we establish that the ai will choose in 90% of the case
+        a random action.
+
+        It's the explore step.
+        During this step, we change the epsilon only in a % that depend on the epsilon and to provide
+        a little random choice to the Ai we don't down the epsilon under 0.01
+
+        More ai explore, more ai learn, and more she decide to use the exploit step.
+
+        In this case, ai will choose to explore during +/- 100 000 first iterations,
+        then ai switch into the exploit step.
+    """
+    if random.uniform(0, 1) < eps():  # explore
         lg.debug("Explore")
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
+        # diminution très lente du espilon
+        if eps() > 0.001 and random.uniform(0, 1) < (1 - eps()) ** 2:
+            get_ai().epsilon = eps() * 0.9999
 
     else:  # exploit
         lg.debug("Exploit")
@@ -64,16 +91,26 @@ def get_move(game_state):
             state=new_state,
             movement=movement,
         )
+        db.session.add(old_state)
     else:
         old_state.state = new_state
         old_state.current_player = game_state.current_player
         old_state.movement = movement
-    db.session.add(old_state)
     db.session.commit()
     return move_converted(movement)
 
 
 def random_action(board, pos_player, player=2):
+    """Choose a valid random action
+
+    Args:
+        board (List[List[int]]): the board
+        pos_player (tuple[int, int]): the player position
+        player (int, optional): the player number. Defaults to 2.
+
+    Returns:
+        str: a direction between ['u', 'd', 'l', 'r']
+    """
     choices = []
     if is_movement_valid(board, player, pos_player, (0, 1)):
         choices.append("d")
@@ -87,6 +124,14 @@ def random_action(board, pos_player, player=2):
 
 
 def update(action, q_old_state, q_new_state, reward):
+    """Update the previous Q[s,a] with the reward and the new Q[s,a]
+
+    Args:
+        action (str): 'u' or  'd' or  'l' or 'r'
+        q_old_state (QTable): The previous Q[s,a]
+        q_new_state (QTable): The new Q[s,a]
+        reward (float): the reward from the previous action
+    """
     alpha = learning_rate()
     gamma = discount_factor()
 
@@ -96,10 +141,13 @@ def update(action, q_old_state, q_new_state, reward):
     q_old_state.set_reward(action, reward)
 
 
+def eps():
+    return get_ai().epsilon
+
+
 # learning_fact
 def learning_rate():
-
-    return 0.1
+    return get_ai().learning_rate
 
 
 # actualisation_fact
@@ -112,14 +160,14 @@ def discount_factor():
     Returns:
         float: the discount_factor
     """
-    return 0.5
+    return get_ai().discount_factor
 
 
 def reward(old_state, new_state, player):
     """calculate the reward based on the evolution of the board
 
     1 case took by the player = +1 point.
-    1 case took by the other player = -0.1 point
+    1 case took by the other player = -0.5 point
 
     Args:
         old_state (str): the old state
@@ -140,7 +188,7 @@ def reward(old_state, new_state, player):
     new_nb_case_other = new_board.count(str(other_player(player)))
 
     reward += new_nb_case_player - old_nb_case_player
-    reward -= (new_nb_case_other - old_nb_case_other) * 0.1
+    reward -= (new_nb_case_other - old_nb_case_other) * 0.5
     return reward
 
 
