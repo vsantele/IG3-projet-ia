@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from sqlalchemy.orm.query import Query
-from .models import db, Qtable, History, Ai
+from .models import db, Qtable, History, Ai, Game
 import logging as lg
 
 from .utils import is_movement_valid, move_converted, timer, called
@@ -17,20 +17,42 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 """
 
 
-def get_ai():
+def get_ai() -> Ai:
     """Get the ai object
 
     Returns:
         Ai: the ai object
     """
-    # global ai
-    # if ai is None:
     ai = Ai.query.get(1)
     return ai
 
 
-def get_move(game_state):
-    """From game_state return the best move"""
+def get_move(game_state: Game):
+    """From game_state return the best move
+
+    How epsilon-greedy works:
+        To chose the movement, we need to consider that the Ai will learn during the game
+        but continue to take some random choices.
+
+        To illustrate that, at the start, we establish that the ai will choose in 90% of the case
+        a random action.
+
+        It's the explore step.
+        During this step, we change the epsilon only in a % that depend on the epsilon and to provide
+        a little random choice to the Ai we don't down the epsilon under 0.01
+
+        More ai explore, more ai learn, and more she decide to use the exploit step.
+
+        In this case, ai will choose to explore during +/- 100 000 first iterations,
+        then ai switch into the exploit step.
+
+    Args:
+        game_state (Game): the game state
+
+    Returns:
+        tuple[int,int]: the movement
+
+    """
     x, y = pos_player(game_state, game_state.current_player)
 
     # 1. recup de l'historique, et mise à jour dans la QTable
@@ -48,25 +70,7 @@ def get_move(game_state):
         rew = reward(old_state.state, new_state, game_state.current_player)
 
         update(old_state.movement, q_old_state, q_new_state, rew)
-    # 2. choisir le mvt
-    # pourquoi is not None?
-    # if q_old_state is not None and random.uniform(0, 1) < eps:  # explore
-    """
-        To chose the movement, we need to consider that the Ai will learn during the game
-        but continue to take some random choices.
 
-        To illustrate that, at the start, we establish that the ai will choose in 90% of the case
-        a random action.
-
-        It's the explore step.
-        During this step, we change the epsilon only in a % that depend on the epsilon and to provide
-        a little random choice to the Ai we don't down the epsilon under 0.01
-
-        More ai explore, more ai learn, and more she decide to use the exploit step.
-
-        In this case, ai will choose to explore during +/- 100 000 first iterations,
-        then ai switch into the exploit step.
-    """
     if random.uniform(0, 1) < eps():  # explore
         lg.debug("Explore")
         movement = random_action(
@@ -100,11 +104,13 @@ def get_move(game_state):
     return move_converted(movement)
 
 
-def random_action(board, pos_player, player=2):
-    """Choose a valid random action
+def random_action(
+    board: "list[list[int]]", pos_player: "tuple[int,int]", player: int = 2
+) -> str:
+    """Choose a valid random action.
 
     Args:
-        board (List[List[int]]): the board
+        board (list[list[int]]): the board
         pos_player (tuple[int, int]): the player position
         player (int, optional): the player number. Defaults to 2.
 
@@ -123,13 +129,13 @@ def random_action(board, pos_player, player=2):
     return random.choice(choices)
 
 
-def update(action, q_old_state, q_new_state, reward):
+def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float):
     """Update the previous Q[s,a] with the reward and the new Q[s,a]
 
     Args:
-        action (str): 'u' or  'd' or  'l' or 'r'
-        q_old_state (QTable): The previous Q[s,a]
-        q_new_state (QTable): The new Q[s,a]
+        action (str): the direction in 1 letter ('u', 'd', 'l' or 'r')
+        q_old_state (Qtable): The previous Q[s,a]
+        q_new_state (Qtable): The new Q[s,a]
         reward (float): the reward from the previous action
     """
     alpha = learning_rate()
@@ -142,17 +148,25 @@ def update(action, q_old_state, q_new_state, reward):
 
 
 def eps():
+    """return the espilon from ai object
+
+    Returns:
+        float: the current espilon
+    """
     return get_ai().epsilon
 
 
-# learning_fact
 def learning_rate():
+    """return the learning_fact from ai object
+
+    Returns:
+        float: the current learning_rate
+    """
     return get_ai().learning_rate
 
 
-# actualisation_fact
 def discount_factor():
-    """determine the discount_factor
+    """Determine the discount_factor
 
     0 = short-sighted
     1 = long-sighted
@@ -163,8 +177,10 @@ def discount_factor():
     return get_ai().discount_factor
 
 
-def reward(old_state, new_state, player):
-    """calculate the reward based on the evolution of the board
+def reward(old_state: str, new_state: str, player: int):
+    """Calculate the reward based on the evolution of the board
+
+    How it works:
 
     1 case took by the player = +1 point.
     1 case took by the other player = -0.5 point
@@ -172,7 +188,7 @@ def reward(old_state, new_state, player):
     Args:
         old_state (str): the old state
         new_state (str): the new state
-        player (int): the player number who learns
+        player (int): the player number who learns (1 or 2)
 
     Returns:
         reward: the reward of the previous action
@@ -192,7 +208,7 @@ def reward(old_state, new_state, player):
     return reward
 
 
-def previous_state(game_id, current_player):
+def previous_state(game_id: int, current_player: int):
     """Get previous state from the database
 
     Args:
@@ -200,23 +216,22 @@ def previous_state(game_id, current_player):
         current_player (int): the player number who learns
 
     Returns:
-        state: the state of the game
-        movement: the movement of the player
+        state: The old state from History table
     """
     previous = History.query.get((game_id, current_player))
     return previous
 
 
-def state_parsed(state):
-    """retreive state information from the string
+def state_parsed(state: str):
+    """Retreive state information from the string
 
     Args:
         state (string): state concat in string
 
     Returns:
         str: board: the board in string
-        int: pos_player_1: the position of player 1
-        int: pos_player_2: the position of player 2
+        int: pos_player_1: the position of player 1 in a tuple
+        int: pos_player_2: the position of player 2 in a tuple
         int: turn: the player who has to play.
     """
     board = state[:25]
@@ -230,11 +245,11 @@ def state_parsed(state):
     return board, pos_player1, pos_player2, turn
 
 
-def other_player(player):
+def other_player(player: int):
     """get the other player number
 
     Args:
-        player (int): the current player
+        player (int): the current player (1 or 2)
 
     Returns:
         int: the other player number
@@ -245,7 +260,7 @@ def other_player(player):
         return 1
 
 
-def pos_player(game_state, player):
+def pos_player(game_state: Game, player: int) -> "tuple[int, int]":
     """return the position of a player
 
     Args:
@@ -259,7 +274,7 @@ def pos_player(game_state, player):
     return game_state.pos_player_2
 
 
-def state(game_state):
+def state(game_state: Game) -> str:
     """convert game state to string state
 
     Args:
@@ -282,7 +297,7 @@ def state(game_state):
     )
 
 
-def q_state(state):
+def q_state(state: str) -> Qtable:
     """Retreive the qtable line for the state if it exists.
     Otherwise create it and return it.
 
@@ -300,7 +315,9 @@ def q_state(state):
     return q
 
 
-def all_valid_movements(board, player, pos):
+def all_valid_movements(
+    board: "list[list[int]]", player: int, pos: "tuple[int, int]"
+) -> "list[str]":
     """Return all valid movements for a player
 
     Args:
