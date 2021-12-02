@@ -28,7 +28,7 @@ def get_ai() -> Ai:
     return ai
 
 
-def get_move(game_state: Game):
+def get_move(game_state: Game) -> Tuple[int, int]:
     """From game_state return the best move
 
     How epsilon-greedy works:
@@ -51,7 +51,7 @@ def get_move(game_state: Game):
         game_state (Game): the game state
 
     Returns:
-        tuple[int,int]: the movement
+        tuple[int,int]: the selected movement
 
     """
     x, y = pos_player(game_state, game_state.current_player)
