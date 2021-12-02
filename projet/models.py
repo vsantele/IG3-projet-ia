@@ -1,3 +1,4 @@
+import os
 import logging as lg
 from datetime import date
 import random
@@ -23,11 +24,13 @@ def init_db():
     db.drop_all()
     db.create_all()
 
-    # Add test user
-    user = User(
-        name="test", email="test@test.be", password=generate_password_hash("test")
-    )
-    db.session.add(user)
+    if os.environ.get("FLASK_ENV") == "development":
+        lg.info("Creating default users")
+        # Add test user
+        user = User(
+            name="test", email="test@test.be", password=generate_password_hash("test")
+        )
+        db.session.add(user)
 
     ai = Ai()
     db.session.add(ai)
