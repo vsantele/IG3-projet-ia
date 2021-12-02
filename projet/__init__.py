@@ -27,7 +27,8 @@ app.config.update(
 )
 # app.config.from_object("config.user")
 
-lg.basicConfig(level=lg.DEBUG)
+if app.config["ENV"] == "development":
+    lg.basicConfig(level=lg.DEBUG)
 
 # IMPORT BLUEPRINT AND REGISTER
 
