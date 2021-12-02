@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_login import LoginManager
 
@@ -10,6 +12,20 @@ import logging as lg
 
 app = Flask(__name__)
 app.config.from_object("config")
+app.config.update(
+    {
+        "SQLALCHEMY_DATABASE_URI": os.environ.get(
+            "SQLALCHEMY_DATABASE_URI",
+            app.config["SQLALCHEMY_DATABASE_URI"],
+        ),
+        "SQLALCHEMY_TRACK_MODIFICATIONS": os.environ.get(
+            "SQLALCHEMY_TRACK_MODIFICATIONS",
+            app.config["SQLALCHEMY_TRACK_MODIFICATIONS"],
+        ),
+        "SECRET_KEY": os.environ.get("SECRET_KEY", app.config["SECRET_KEY"]),
+    }
+)
+# app.config.from_object("config.user")
 
 lg.basicConfig(level=lg.DEBUG)
 
