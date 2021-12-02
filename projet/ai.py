@@ -3,6 +3,7 @@ import numpy as np
 from sqlalchemy.orm.query import Query
 from .models import db, Qtable, History, Ai, Game
 import logging as lg
+from typing import List, Tuple
 
 from .utils import is_movement_valid, move_converted, timer, called
 
@@ -105,7 +106,7 @@ def get_move(game_state: Game):
 
 
 def random_action(
-    board: "list[list[int]]", pos_player: "tuple[int,int]", player: int = 2
+    board: List[List[int]], pos_player: Tuple[int, int], player: int = 2
 ) -> str:
     """Choose a valid random action.
 
@@ -260,7 +261,7 @@ def other_player(player: int):
         return 1
 
 
-def pos_player(game_state: Game, player: int) -> "tuple[int, int]":
+def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
     """return the position of a player
 
     Args:
@@ -316,8 +317,8 @@ def q_state(state: str) -> Qtable:
 
 
 def all_valid_movements(
-    board: "list[list[int]]", player: int, pos: "tuple[int, int]"
-) -> "list[str]":
+    board: List[List[int]], player: int, pos: Tuple[int, int]
+) -> List[str]:
     """Return all valid movements for a player
 
     Args:
