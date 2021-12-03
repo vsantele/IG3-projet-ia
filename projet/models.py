@@ -1,4 +1,4 @@
-import os
+from flask import current_app
 import logging as lg
 from datetime import date
 import random
@@ -24,7 +24,7 @@ def init_db():
     db.drop_all()
     db.create_all()
 
-    if os.environ.get("FLASK_ENV") == "development":
+    if current_app.config["ENV"] == "development":
         lg.info("Creating default users")
         # Add test user
         user = User(
@@ -56,6 +56,11 @@ class User(UserMixin, db.Model):
     is_human = db.Column(db.Boolean, nullable=False, default=True)
 
     games = db.relationship("Game", backref="game", lazy=True)
+
+    @property
+    def is_admin(self):
+        return self.email in current_app.config["ADMIN_USERS"]
+
 
 
 class Game(db.Model):

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-  <h1 class="title">{% block title %}SplatAI {% endblock %}</h1>
+  <h1 class="title">{% block title %}SplatAI {% endblock %} </h1>
   {% with messages = get_flashed_messages() %} {% if messages %}
   <div class="notification is-danger">{{ messages[0] }}</div>
   {% endif %} {% endwith %}
@@ -10,6 +10,12 @@
   <a class="button is-primary is-large" id="createGameBtn" href='{{url_for("game.game_create")}}'>
     Create a Game
   </a>
+  <a class="button is-primary is-large" id="displayStat" href='{{url_for("game.display_stat")}}'>Display Stat
+    User</a>
+  {% if current_user.is_admin %}
+  <a class="button is-primary is-large" href="{{url_for('admin.dashboard')}}">Admin Dashboard</a>
+
+  {% endif %}
   {% else %}
   <p>You have to be logged in to create a game</p>
   <a class="button is-primary" id="createGameBtn" href='{{url_for("auth.signup")}}'>

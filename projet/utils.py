@@ -2,6 +2,9 @@ import re
 import time
 import logging as lg
 
+from flask_login import current_user
+from flask import current_app
+
 from typing import List
 
 
@@ -256,3 +259,15 @@ def timer(func):
         return result
 
     return wrapper
+
+
+def parse_users(users):
+    """Parse the users to a list of tuples.
+
+    Args:
+        users (str): the users
+
+    Returns:
+        list: the list of tuples
+    """
+    return [user for user in users.split(";") if is_email_valid(user)]

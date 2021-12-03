@@ -12,7 +12,7 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid
+from projet.utils import is_email_valid, admin_required
 
 from .ai import get_move
 from .exceptions import (
@@ -25,6 +25,7 @@ from .utils import move_converted
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
+admin_bp = Blueprint("admin", __name__)
 
 # MAIN ROUTE
 
@@ -33,7 +34,7 @@ auth_bp = Blueprint("auth", __name__)
 def index():
     """Root route"""
     # return "Hello world"
-    return render_template("index.html")
+    return render_template("index.html", is_admin=current_user.is_admin)
 
 
 @game_bp.route("/game", methods=["GET"])
@@ -47,6 +48,13 @@ def game_create():
     db.session.add(new_game)
     db.session.commit()
     return redirect(url_for("game.game", game_id=new_game.id))
+
+
+@game_bp.route("/user", methods=["GET"])
+@login_required
+def display_stat():
+    """ """
+    return render_template("stat.html")
 
 
 @game_bp.route("/game/<int:game_id>", methods=["GET", "POST"])
@@ -217,3 +225,38 @@ def logout():
     """
     logout_user()
     return redirect(url_for("game.index"))
+
+
+# ADMIN ROUTE
+
+
+@admin_bp.route("/admin/dashboard", methods=["GET"])
+@login_required
+@admin_required
+def dashboard():
+    """
+    Dashboard
+    """
+    return render_template("admin/dashboard.html")
+
+
+@admin_bp.route("/admin/start", methods=["GET"])
+@login_required
+@admin_required
+def start_train():
+    """
+    Start training
+    """
+    # train_ai()
+    return redirect(url_for("admin.dashboard"))
+
+
+@admin_bp.route("/admin/stop", methods=["GET"])
+@login_required
+@admin_required
+def stop_train():
+    """
+    Start training
+    """
+    # train_ai()
+    return redirect(url_for("admin.dashboard"))

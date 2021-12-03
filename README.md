@@ -73,3 +73,9 @@ Default = `"sqlite:///" + os.path.join(basedir, "app.db")`
 If you need to track modifications of objects. This requires extra memory.
 
 Default = `False`
+
+### `ADMIN_USERS`
+
+The list separate by `;` of all users's email addresses who are admins.
+
+Example: `"test@test.be;hello@world.com"`

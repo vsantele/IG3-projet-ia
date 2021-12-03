@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block css %} {% endblock %} {%block content %}
+<a class="button is-primary is-large" href='{{url_for("admin.start_train")}}'>
+  Start training
+</a>
+<a class="button is-primary is-large" href='{{url_for("admin.stop_train")}}'>
+  Stop training
+</a>
+{% endblock %} {% block js %} {% endblock %}

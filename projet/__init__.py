@@ -4,8 +4,8 @@ from flask import Flask
 from flask_login import LoginManager
 
 from .models import User, db, init_db
-from .views import auth_bp, game_bp
-
+from .views import auth_bp, game_bp, admin_bp
+from .utils import parse_users
 import logging as lg
 
 # APP SETUP
@@ -23,9 +23,9 @@ app.config.update(
             app.config["SQLALCHEMY_TRACK_MODIFICATIONS"],
         ),
         "SECRET_KEY": os.environ.get("SECRET_KEY", app.config["SECRET_KEY"]),
+        "ADMIN_USERS": parse_users(os.environ.get("ADMIN_USERS", "")),
     }
 )
-# app.config.from_object("config.user")
 
 if app.config["ENV"] == "development":
     lg.basicConfig(level=lg.DEBUG)
@@ -37,6 +37,7 @@ app.register_blueprint(game_bp)
 app.add_url_rule("/", endpoint="index")
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(admin_bp)
 
 # DB SETUP
 

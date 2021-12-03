@@ -1,5 +1,5 @@
 import pytest
-from projet.utils import is_email_valid, fill_paddock, is_movement_valid
+from projet.utils import is_email_valid, fill_paddock, is_movement_valid, parse_users
 
 
 @pytest.mark.parametrize(
@@ -225,3 +225,24 @@ def test_fill_paddock(board_in, board_out):
 def test_is_movement_valid(board, player, player_pos, movement, is_valid):
     """Test `is_email_valid`."""
     assert is_movement_valid(board, player, player_pos, movement) is is_valid
+
+
+@pytest.mark.parametrize(
+    ("email_string", "emails"),
+    [
+        (
+            "test@test.be",
+            ["test@test.be"],
+        ),
+        (
+            "hello@test.be;test@test.be",
+            ["hello@test.be", "test@test.be"],
+        ),
+        ("", []),
+        ("tedfs", []),
+        ("tedfs@", []),
+    ],
+)
+def test_parse_users(email_string, emails):
+    """Test `parse_users`."""
+    assert parse_users(email_string) == emails
