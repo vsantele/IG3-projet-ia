@@ -62,7 +62,6 @@ class User(UserMixin, db.Model):
         return self.email in current_app.config["ADMIN_USERS"]
 
 
-
 class Game(db.Model):
     """
     Game Model
