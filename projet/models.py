@@ -243,7 +243,8 @@ class Qtable(db.Model):
     Qtable model
 
     Args :
-        state (str): this is the state of the current game, contain board(25), pos_player_1(2), pos_player_2(2), and turn(1)
+        state (str): this is the state of the current game, contain:
+            board(25), pos_player_1(2), pos_player_2(2), and turn(1)
             => 30 caracters => "100000000000000000000000200441" for ex
         up (int): value of the reward for this direction at T time
         down (int): value of the reward for this direction at T time
@@ -310,22 +311,23 @@ class Qtable(db.Model):
         Return the best action
 
         Args:
-            valid_movements (list, optional): List of all valid moves. Defaults to ["u", "d", "l", "r"].
+            valid_movements (list, optional): List of all valid moves.
+                Defaults to ["u", "d", "l", "r"].
 
         Returns:
             str: the best action
         """
         if valid_movements is None:
             valid_movements = ["u", "d", "l", "r"]
-        max = self.max()
+        max_reward = self.max()
         bests = []
-        if "u" in valid_movements and self.up == max:
+        if "u" in valid_movements and self.up == max_reward:
             bests.append("u")
-        elif "d" in valid_movements and self.down == max:
+        elif "d" in valid_movements and self.down == max_reward:
             bests.append("d")
-        elif "l" in valid_movements and self.left == max:
+        elif "l" in valid_movements and self.left == max_reward:
             bests.append("l")
-        elif "r" in valid_movements and self.right == max:
+        elif "r" in valid_movements and self.right == max_reward:
             bests.append("r")
         return random.choice(bests)
 

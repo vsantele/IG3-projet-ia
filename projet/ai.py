@@ -33,12 +33,13 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         To chose the movement, we need to consider that the Ai will learn during the game
         but continue to take some random choices.
 
-        To illustrate that, at the start, we establish that the ai will choose in 90% of the case
-        a random action.
+        To illustrate that, at the start, we establish that
+        the ai will choose in 90% of the case a random action.
 
         It's the explore step.
-        During this step, we change the epsilon only in a % that depend on the epsilon and to provide
-        a little random choice to the Ai we don't down the epsilon under 0.01
+        During this step, we change the epsilon only in a % that depend on
+        the epsilon and to provide a little random choice to
+        the Ai we don't down the epsilon under 0.01
 
         More ai explore, more ai learn, and more she decide to use the exploit step.
 
@@ -55,7 +56,7 @@ def get_move(game_state: Game) -> Tuple[int, int]:
     x, y = pos_player(game_state, game_state.current_player)
 
     # 1. find the history and update in the QTable in regards of the movement
-    new_state = state(game_state)
+    new_state = state_str(game_state)
     q_new_state = q_state(new_state)
 
     old_state = previous_state(game_state.id, game_state.current_player)
@@ -269,7 +270,7 @@ def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
     return game_state.pos_player_2
 
 
-def state(game_state: Game) -> str:
+def state_str(game_state: Game) -> str:
     """Convert game state to string state
 
     Args:
