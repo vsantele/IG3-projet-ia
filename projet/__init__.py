@@ -53,6 +53,14 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Used by the login manager to load a user from the database by their ID.
+
+    Args:
+        user_id (int): the User id
+
+    Returns:
+        User: The user with the given id
+    """
     return User.query.get(int(user_id))
 
 
