@@ -69,6 +69,7 @@ class User(UserMixin, db.Model):
     def nb_game_win(self):
         return len(list(filter(lambda x: x.is_finished and x.winner == 1, self.games)))
 
+
 class Game(db.Model):
     """
     Game Model
