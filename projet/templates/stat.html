@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block css %}
+{% endblock %}
+{%block content %}
+<div class="notification">
+  <div class="content">
+    <ol type="1">
+      <li>Total Game Played : {{current_user.nb_game_played}}</li>
+      <li>Total Victory : {{current_user.nb_game_win}}</li>
+      <li>Total Lose : {{current_user.nb_game_played - current_user.nb_game_win}}</li>
+    </ol>
+
+  </div>
+  <button class="delete">Delete</button>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+
+</script>
+{% endblock %}

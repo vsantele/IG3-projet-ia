@@ -1,27 +1,29 @@
 {% from 'navbar.html' import navbar %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css"
-    />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css" />
   {% block css %}{% endblock %}
   <title>{% block title %}{% endblock %}</title>
 </head>
+
 <body>
   {{navbar(current_user)}}
   {% block content %}{% endblock %}
   <footer class="footer">
     <div class="content has-text-centered">
-      <p>Jeu créé dans le cadre du cours du projet de création d'intelligence artificielle du Bloc 3 d'Informatique de gestion à <a href="https://henallux.be">Henallux</a></p>
+      <p>Game created as part of the Artificial Intelligence Creation Project course in Computer Science at <a
+          href="https://henallux.be">Henallux</a></p>
     </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.1/dist/bulma-toast.min.js" integrity="sha256-1aBe6q/4Wh173Ujj/I4uL8w2k5ypeviG1XNs1FfPqKw=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.1/dist/bulma-toast.min.js"
+    integrity="sha256-1aBe6q/4Wh173Ujj/I4uL8w2k5ypeviG1XNs1FfPqKw=" crossorigin="anonymous"></script>
   <script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>
   {% block js %}{% endblock %}
 </body>
+
 </html>
