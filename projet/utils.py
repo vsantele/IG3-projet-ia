@@ -5,6 +5,8 @@ import logging as lg
 from flask_login import current_user
 from flask import current_app
 
+from functools import wraps
+
 from typing import List
 
 
@@ -271,3 +273,13 @@ def parse_users(users):
         list: the list of tuples
     """
     return [user for user in users.split(";") if is_email_valid(user)]
+
+
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_admin:
+            return current_app.login_manager.unauthorized()
+        return func(*args, **kwargs)
+
+    return decorated_view
