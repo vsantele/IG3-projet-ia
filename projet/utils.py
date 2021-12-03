@@ -226,13 +226,13 @@ def move_converted(move):
     Returns:
         tuple: the coordinates of the direction
     """
-    if move == "left" or move == "l":
+    if move in ("left", "l"):
         return (-1, 0)
-    elif move == "right" or move == "r":
+    if move in ("right", "r"):
         return (1, 0)
-    elif move == "up" or move == "u":
+    if move in ("up", "u"):
         return (0, -1)
-    elif move == "down" or move == "d":
+    if move in ("down", "d"):
         return (0, 1)
 
 

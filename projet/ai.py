@@ -252,8 +252,7 @@ def other_player(player: int) -> int:
     """
     if player == 1:
         return 2
-    else:
-        return 1
+    return 1
 
 
 def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
@@ -324,7 +323,6 @@ def all_valid_movements(
     Returns:
         List[str]: All valid movements
     """
-
     movements = []
     if is_movement_valid(board, player, pos, (0, 1)):
         movements += ["d"]

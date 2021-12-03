@@ -267,16 +267,15 @@ class Qtable(db.Model):
         Returns:
             int: the reward of the action
         """
-        if action == "u" or action == "up":
+        if action in ("u", "up"):
             return self.up
-        elif action == "d" or action == "down":
+        if action in ("d", "down"):
             return self.down
-        elif action == "l" or action == "left":
+        if action in ("l", "left"):
             return self.left
-        elif action == "r" or action == "right":
+        if action in ("r", "right"):
             return self.right
-        else:
-            raise InvalidActionException(action)
+        raise InvalidActionException(action)
 
     def set_reward(self, action, reward):
         """
@@ -286,13 +285,13 @@ class Qtable(db.Model):
             action (str): the action to set the reward
             reward (float): the reward to set
         """
-        if action == "u" or action == "up":
+        if action in ("u", "up"):
             self.up = reward
-        elif action == "d" or action == "down":
+        elif action in ("d", "down"):
             self.down = reward
-        elif action == "l" or action == "left":
+        elif action in ("l", "left"):
             self.left = reward
-        elif action == "r" or action == "right":
+        elif action in ("r", "right"):
             self.right = reward
         else:
             raise InvalidActionException(action)
@@ -306,7 +305,7 @@ class Qtable(db.Model):
         """
         return max(self.up, self.down, self.left, self.right)
 
-    def best(self, valid_movements=["u", "d", "l", "r"]):
+    def best(self, valid_movements=None):
         """
         Return the best action
 
@@ -316,6 +315,8 @@ class Qtable(db.Model):
         Returns:
             str: the best action
         """
+        if valid_movements is None:
+            valid_movements = ["u", "d", "l", "r"]
         max = self.max()
         bests = []
         if "u" in valid_movements and self.up == max:
