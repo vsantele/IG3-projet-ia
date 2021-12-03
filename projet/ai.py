@@ -1,11 +1,9 @@
 import random
-import numpy as np
-from sqlalchemy.orm.query import Query
 from .models import db, Qtable, History, Ai, Game
 import logging as lg
 from typing import List, Tuple
 
-from .utils import is_movement_valid, move_converted, timer, called
+from .utils import is_movement_valid, move_converted
 
 """
 For the Qtable
@@ -56,39 +54,36 @@ def get_move(game_state: Game) -> Tuple[int, int]:
     """
     x, y = pos_player(game_state, game_state.current_player)
 
-    # 1. recup de l'historique, et mise à jour dans la QTable
-    # en fonction du mouvement
+    # 1. find the history and update in the QTable in regards of the movement
     new_state = state(game_state)
     q_new_state = q_state(new_state)
 
     old_state = previous_state(game_state.id, game_state.current_player)
     if old_state is not None:
-
-        # attention, vérifier en cas de création peut-être + quand premier tour
-        # current_state_qtable_line
         q_old_state = q_state(old_state.state)
 
         rew = reward(old_state.state, new_state, game_state.current_player)
 
         update(old_state.movement, q_old_state, q_new_state, rew)
 
-    if random.uniform(0, 1) < eps():  # explore
+    # explore step
+    if random.uniform(0, 1) < eps():
         lg.debug("Explore")
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
-        # diminution très lente du espilon
+        # very slowly down of the epsilon
         if eps() > 0.001 and random.uniform(0, 1) < (1 - eps()) ** 2:
             get_ai().epsilon = eps() * 0.9999
-
-    else:  # exploit
+    # exploit step
+    else:
         lg.debug("Exploit")
         valid_movements = all_valid_movements(
             game_state.board_array, game_state.current_player, (x, y)
         )
         movement = q_new_state.best(valid_movements)
 
-    # 3. mettre à jour le nouvel état ds l'historique
+    # 3. update in the history table the new state
     if old_state is None:
         old_state = History(
             game_id=game_state.id,
@@ -149,7 +144,7 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
 
 
 def eps():
-    """return the espilon from ai object
+    """Return the espilon from ai object
 
     Returns:
         float: the current espilon
@@ -158,7 +153,7 @@ def eps():
 
 
 def learning_rate():
-    """return the learning_fact from ai object
+    """Return the learning_fact from ai object
 
     Returns:
         float: the current learning_rate
@@ -223,7 +218,7 @@ def previous_state(game_id: int, current_player: int):
     return previous
 
 
-def state_parsed(state: str):
+def state_parsed(state: str) -> Tuple[str, int, int, int]:
     """Retreive state information from the string
 
     Args:
@@ -246,8 +241,8 @@ def state_parsed(state: str):
     return board, pos_player1, pos_player2, turn
 
 
-def other_player(player: int):
-    """get the other player number
+def other_player(player: int) -> int:
+    """Get the other player number
 
     Args:
         player (int): the current player (1 or 2)
@@ -262,7 +257,7 @@ def other_player(player: int):
 
 
 def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
-    """return the position of a player
+    """Return the position of a player
 
     Args:
         game_state (GameState): the current state of the game
@@ -276,7 +271,7 @@ def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
 
 
 def state(game_state: Game) -> str:
-    """convert game state to string state
+    """Convert game state to string state
 
     Args:
         game_state (Game): the game object from db
