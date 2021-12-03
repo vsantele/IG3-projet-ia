@@ -61,6 +61,13 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return self.email in current_app.config["ADMIN_USERS"]
 
+    @property
+    def nb_game_played(self):
+        return len(self.games)
+
+    @property
+    def nb_game_win(self):
+        return len(list(filter(lambda x: x.is_finished and x.winner == 1, self.games)))
 
 
 class Game(db.Model):
