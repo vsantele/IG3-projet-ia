@@ -4,14 +4,14 @@
 <div class="container">
   <h1 class="title">{% block title %}SplatAI {% endblock %}</h1>
   {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="notification is-danger">{{ messages[0] }}</div>
-    {% endif %} {% endwith %}
+  <div class="notification is-danger">{{ messages[0] }}</div>
+  {% endif %} {% endwith %}
   {% if current_user.is_authenticated %}
   <a class="button is-primary is-large" id="createGameBtn" href='{{url_for("game.game_create")}}'>
-    Créer une partie
+    Create a Game
   </a>
   {% else %}
-  <p>Vous devez être connecter pour pouvoir jouer</p>
+  <p>You have to be logged in to create a game</p>
   <a class="button is-primary" id="createGameBtn" href='{{url_for("auth.signup")}}'>
     SignUp
   </a>
@@ -19,9 +19,8 @@
     Login
   </a>
   {% endif %}
-  <div class="content">
-    <h2 class="title"> Principe du jeu </h2>
-  </div>
+  <!-- <div class="content">
+    <h2 class="title"> Game Principle </h2>
+  </div> -->
 </div>
 {% endblock %}
-
