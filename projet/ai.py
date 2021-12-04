@@ -138,10 +138,10 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
     alpha = learning_rate()
     gamma = discount_factor()
 
-    reward = q_old_state.get_reward(action) + alpha * (
+    reward_action = q_old_state.get_reward(action) + alpha * (
         reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
     )
-    q_old_state.set_reward(action, reward)
+    q_old_state.set_reward(action, reward_action)
 
 
 def eps():
