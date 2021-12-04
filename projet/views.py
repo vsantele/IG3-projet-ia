@@ -12,7 +12,7 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, admin_required
+from projet.utils import is_email_valid, admin_required, user_is_admin
 
 from .ai import get_move
 from .exceptions import (
@@ -34,7 +34,7 @@ admin_bp = Blueprint("admin", __name__)
 def index():
     """Root route"""
     # return "Hello world"
-    return render_template("index.html", is_admin=current_user.is_admin)
+    return render_template("index.html", is_admin=user_is_admin(current_user))
 
 
 @game_bp.route("/game", methods=["GET"])

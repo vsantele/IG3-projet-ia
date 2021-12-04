@@ -12,7 +12,7 @@
   </a>
   <a class="button is-primary is-large" id="displayStat" href='{{url_for("game.display_stat")}}'>Display Stat
     User</a>
-  {% if current_user.is_admin %}
+  {% if is_admin %}
   <a class="button is-primary is-large" href="{{url_for('admin.dashboard')}}">Admin Dashboard</a>
 
   {% endif %}
