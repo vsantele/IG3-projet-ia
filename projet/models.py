@@ -32,9 +32,6 @@ def init_db():
         )
         db.session.add(user)
 
-    ai = Ai()
-    db.session.add(ai)
-
     db.session.commit()
     lg.info("Database initialized !")
 
@@ -92,7 +89,7 @@ class Game(db.Model):
     datetime = db.Column(db.Date, nullable=False, default=date.today())
 
     # TODO: check how foreign_keys works with sqlalchemy
-    user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     # user_id_2 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     vs_ai = db.Column(db.Boolean, default=True)
@@ -297,14 +294,24 @@ class Qtable(db.Model):
         else:
             raise InvalidActionException(action)
 
-    def max(self):
+    def max(self, valid_movements=None):
         """
-        Return the max reward
+        Return the max reward for the given valid moves.
+        If no valid moves are given, return the max reward for all the actions.
+
+        Args:
+            valid_movements (list): list of valid movements.
+                Default is ["u", "d", "l", "r"]
 
         Returns:
             float: the max reward of the action
         """
-        return max(self.up, self.down, self.left, self.right)
+        if valid_movements is None:
+            valid_movements = ["u", "d", "l", "r"]
+        available_reward = []
+        for mouv in valid_movements:
+            available_reward.append(self.get_reward(mouv))
+        return max(available_reward)
 
     def best(self, valid_movements=None):
         """
@@ -319,15 +326,15 @@ class Qtable(db.Model):
         """
         if valid_movements is None:
             valid_movements = ["u", "d", "l", "r"]
-        max_reward = self.max()
+        max_reward = self.max(valid_movements)
         bests = []
         if "u" in valid_movements and self.up == max_reward:
             bests.append("u")
-        elif "d" in valid_movements and self.down == max_reward:
+        if "d" in valid_movements and self.down == max_reward:
             bests.append("d")
-        elif "l" in valid_movements and self.left == max_reward:
+        if "l" in valid_movements and self.left == max_reward:
             bests.append("l")
-        elif "r" in valid_movements and self.right == max_reward:
+        if "r" in valid_movements and self.right == max_reward:
             bests.append("r")
         return random.choice(bests)
 
@@ -343,10 +350,3 @@ class History(db.Model):
         nullable=False,
     )  # movement  = 'u' 'd' 'l' 'r'
     db.PrimaryKeyConstraint(game_id, current_player, name="history_pk")
-
-
-class Ai(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    epsilon = db.Column(db.Float, nullable=False, default=0.9)
-    learning_rate = db.Column(db.Float, nullable=False, default=0.1)
-    discount_factor = db.Column(db.Float, nullable=False, default=0.5)

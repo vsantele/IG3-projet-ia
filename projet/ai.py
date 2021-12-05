@@ -1,9 +1,9 @@
 import random
-from .models import db, Qtable, History, Ai, Game
+from .models import db, Qtable, History, Game
 import logging as lg
 from typing import List, Tuple
 
-from .utils import is_movement_valid, move_converted
+from .utils import is_movement_valid, move_converted, timer
 
 """
 For the Qtable
@@ -15,17 +15,12 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 
 """
 
-
-def get_ai() -> Ai:
-    """Get the ai object
-
-    Returns:
-        Ai: the ai object
-    """
-    ai = Ai.query.get(1)
-    return ai
+epsilon = 0.95
+learning_rate = 0.99
+discount_factor = 0.1
 
 
+@timer
 def get_move(game_state: Game) -> Tuple[int, int]:
     """From game_state return the best move
 
@@ -53,6 +48,9 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         tuple[int,int]: the selected movement
 
     """
+    global epsilon
+    global learning_rate
+    global discount_factor
     x, y = pos_player(game_state, game_state.current_player)
 
     # 1. find the history and update in the QTable in regards of the movement
@@ -68,21 +66,30 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         update(old_state.movement, q_old_state, q_new_state, rew)
 
     # explore step
-    if random.uniform(0, 1) < eps():
-        lg.debug("Explore")
+    if random.uniform(0, 1) < epsilon:
+        # lg.debug("Explore")
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
         # very slowly down of the epsilon
-        if eps() > 0.001 and random.uniform(0, 1) < (1 - eps()) ** 2:
-            get_ai().epsilon = eps() * 0.9999
+        update_epsilon()
     # exploit step
     else:
-        lg.debug("Exploit")
+        # lg.debug("Exploit")
         valid_movements = all_valid_movements(
             game_state.board_array, game_state.current_player, (x, y)
         )
-        movement = q_new_state.best(valid_movements)
+        try:
+            movement = q_new_state.best(valid_movements)
+        except IndexError:
+            # if there is no valid movement, we choose a random one
+            # It's a security to always return a movement
+            lg.error("No valid movements")
+            movement = random_action(
+                game_state.board_array, (x, y), game_state.current_player
+            )
+    # return move_converted(movement)
+    # movement = q_new_state.best(valid_movements)
 
     # 3. update in the history table the new state
     if old_state is None:
@@ -99,6 +106,30 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         old_state.movement = movement
     db.session.commit()
     return move_converted(movement)
+
+
+def update_game_finished(game_state, player):
+    """Update the QTable when the game is finished
+
+    Args:
+        game_state (Game): the game state
+    """
+
+    new_state = state_str(game_state)
+    old_state = previous_state(game_state.id, player)
+
+    q_new_state = q_state(new_state)
+
+    if old_state is not None:
+        q_old_state = q_state(old_state.state)
+        rew = reward(
+            old_state.state,
+            new_state,
+            game_state.current_player,
+            winner=game_state.winner,
+        )
+
+        update(old_state.movement, q_old_state, q_new_state, rew)
 
 
 def random_action(
@@ -135,8 +166,8 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
         q_new_state (Qtable): The new Q[s,a]
         reward (float): the reward from the previous action
     """
-    alpha = learning_rate()
-    gamma = discount_factor()
+    alpha = updated_learning_rate()
+    gamma = updated_discount_factor()
 
     reward_action = q_old_state.get_reward(action) + alpha * (
         reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
@@ -144,43 +175,48 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
     q_old_state.set_reward(action, reward_action)
 
 
-def eps():
-    """Return the espilon from ai object
+def update_epsilon():
+    """Update the global epsilon variable"""
+    global epsilon
+    if epsilon > 0.01 and random.uniform(0, 1) < (1 - epsilon) ** 2:
+        epsilon = epsilon * 0.9999
+
+
+def updated_learning_rate():
+    """Return the learning_rate from global variable
 
     Returns:
-        float: the current espilon
+        float: the updated learning_rate
     """
-    return get_ai().epsilon
+    global learning_rate
+    if learning_rate > 0.1:
+        learning_rate = learning_rate * 0.9999
+    return learning_rate
 
 
-def learning_rate():
-    """Return the learning_fact from ai object
-
-    Returns:
-        float: the current learning_rate
-    """
-    return get_ai().learning_rate
-
-
-def discount_factor():
-    """Determine the discount_factor
+def updated_discount_factor():
+    """Return the discount_factor from global variable
 
     0 = short-sighted
     1 = long-sighted
 
     Returns:
-        float: the discount_factor
+        float: the updated discount_factor
     """
-    return get_ai().discount_factor
+    global discount_factor
+    if discount_factor < 0.99:
+        discount_factor *= 1.0001
+    return discount_factor
 
 
-def reward(old_state: str, new_state: str, player: int):
+def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> float:
     """Calculate the reward based on the evolution of the board
 
     How it works:
-
-    1 case took by the player = +1 point.
-    1 case took by the other player = -0.5 point
+        - 1 case took by the player = +1 point.
+        - 1 case took by the other player = -0.5 point
+        - if loose = -10 points
+        - if win = +10 points
 
     Args:
         old_state (str): the old state
@@ -200,6 +236,8 @@ def reward(old_state: str, new_state: str, player: int):
     old_nb_case_other = old_board.count(str(other_player(player)))
     new_nb_case_other = new_board.count(str(other_player(player)))
 
+    if winner != 0:
+        reward += 10 if winner == player else -10
     reward += new_nb_case_player - old_nb_case_player
     reward -= (new_nb_case_other - old_nb_case_other) * 0.5
     return reward
@@ -334,3 +372,16 @@ def all_valid_movements(
     if is_movement_valid(board, player, pos, (-1, 0)):
         movements += ["l"]
     return movements
+
+
+def info():
+    return (
+        "Eps: "
+        + str(epsilon)
+        + " | "
+        + "LR: "
+        + str(learning_rate)
+        + " | "
+        + "DF: "
+        + str(discount_factor)
+    )

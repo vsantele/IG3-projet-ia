@@ -8,11 +8,13 @@ from flask import (
     render_template,
     request,
     url_for,
+    current_app,
+    stream_with_context,
 )
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, admin_required
+from projet.utils import is_email_valid, admin_required, user_is_admin
 
 from .ai import get_move
 from .exceptions import (
@@ -22,6 +24,7 @@ from .exceptions import (
 )
 from .models import Game, User, db
 from .utils import move_converted
+from .train import start_train_ai, stop_train_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -34,7 +37,7 @@ admin_bp = Blueprint("admin", __name__)
 def index():
     """Root route"""
     # return "Hello world"
-    return render_template("index.html", is_admin=current_user.is_admin)
+    return render_template("index.html", is_admin=user_is_admin(current_user))
 
 
 @game_bp.route("/game", methods=["GET"])
@@ -247,8 +250,11 @@ def start_train():
     """
     Start training
     """
-    # train_ai()
-    return redirect(url_for("admin.dashboard"))
+    # TODO : update a template instead of print line in a text
+    # https://flask.palletsprojects.com/en/2.0.x/patterns/streaming/#streaming-from-templates
+    return current_app.response_class(
+        stream_with_context(start_train_ai(n_games=100_000)), mimetype="text/plain"
+    )
 
 
 @admin_bp.route("/admin/stop", methods=["GET"])
@@ -258,5 +264,6 @@ def stop_train():
     """
     Start training
     """
-    # train_ai()
+    stop_train_ai()
+    flash("Training stopped")
     return redirect(url_for("admin.dashboard"))

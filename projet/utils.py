@@ -275,11 +275,35 @@ def parse_users(users):
     return [user for user in users.split(";") if is_email_valid(user)]
 
 
+def user_is_admin(user):
+    """Check if the user is an admin.
+
+    Args:
+        user (User): the user
+
+    Returns:
+        bool: `True` if the user is an admin, `False` otherwise.
+    """
+    return user.is_authenticated and user.email in current_app.config["ADMIN_USERS"]
+
+
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.is_admin:
+        if not user_is_admin(current_user):
             return current_app.login_manager.unauthorized()
         return func(*args, **kwargs)
 
     return decorated_view
+
+
+def beautify_board(board):
+    """Beautify the board.
+
+    Args:
+        board (List[List[int]]): the board
+
+    Returns:
+        str: the board
+    """
+    return "\n".join([" ".join([str(cell) for cell in row]) for row in board])
