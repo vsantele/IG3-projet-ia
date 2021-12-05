@@ -295,3 +295,15 @@ def admin_required(func):
         return func(*args, **kwargs)
 
     return decorated_view
+
+
+def beautify_board(board):
+    """Beautify the board.
+
+    Args:
+        board (List[List[int]]): the board
+
+    Returns:
+        str: the board
+    """
+    return "\n".join([" ".join([str(cell) for cell in row]) for row in board])
