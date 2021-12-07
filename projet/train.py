@@ -6,7 +6,7 @@ from .exceptions import GameFinishedException
 from .utils import beautify_board
 
 
-def train(n_games=1000):
+def train_ai(n_games=1000):
     yield f"Starting training for {n_games} games..."
     for x in range(0, n_games):
         game = Game()
@@ -33,7 +33,7 @@ def train(n_games=1000):
 
 
 def start_train_ai(n_games=1000):
-    return train(n_games)
+    return train_ai(n_games)
 
 
 def stop_train_ai():
