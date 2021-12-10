@@ -288,6 +288,8 @@ def user_is_admin(user):
 
 
 def admin_required(func):
+    """Decorator to check if the user is an admin."""
+
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not user_is_admin(current_user):

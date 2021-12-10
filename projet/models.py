@@ -256,7 +256,7 @@ class Qtable(db.Model):
     left = db.Column(db.Float, nullable=False, default=0)
     right = db.Column(db.Float, nullable=False, default=0)
 
-    def get_reward(self, action):
+    def get_quality(self, action):
         """
         Return the reward of the action
 
@@ -311,7 +311,7 @@ class Qtable(db.Model):
             valid_movements = ["u", "d", "l", "r"]
         available_reward = []
         for mouv in valid_movements:
-            available_reward.append(self.get_reward(mouv))
+            available_reward.append(self.get_quality(mouv))
         return max(available_reward)
 
     def best(self, valid_movements=None):

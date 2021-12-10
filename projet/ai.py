@@ -133,7 +133,7 @@ def update_game_finished(game_state, player):
 
 
 def random_action(
-    board: List[List[int]], pos_player: Tuple[int, int], player: int = 2
+    board: List[List[int]], pos_cur_player: Tuple[int, int], player: int = 2
 ) -> str:
     """Choose a valid random action.
 
@@ -145,10 +145,10 @@ def random_action(
     Returns:
         str: a direction between ['u', 'd', 'l', 'r']
     """
-    return random.choice(all_valid_movements(board, player, pos_player))
+    return random.choice(all_valid_movements(board, player, pos_cur_player))
 
 
-def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float):
+def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: float):
     """Update the previous Q[s,a] with the reward and the new Q[s,a]
 
     Args:
@@ -160,8 +160,8 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
     alpha = updated_learning_rate()
     gamma = updated_discount_factor()
 
-    quality = q_old_state.get_reward(action) + alpha * (
-        reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
+    quality = q_old_state.get_quality(action) + alpha * (
+        reward_value + gamma * q_new_state.max() - q_old_state.get_quality(action)
     )
     q_old_state.set_quality(action, quality)
 
@@ -219,7 +219,7 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     old_board, *_ = state_parsed(old_state)
     new_board, *_ = state_parsed(new_state)
 
-    reward = 0
+    points = 0
 
     old_nb_case_player = old_board.count(str(player))
     new_nb_case_player = new_board.count(str(player))
@@ -227,10 +227,10 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     new_nb_case_other = new_board.count(str(other_player(player)))
 
     if winner == player:
-        reward += 10
-    reward += new_nb_case_player - old_nb_case_player
-    reward -= (new_nb_case_other - old_nb_case_other) * 0.5
-    return reward
+        points += 10
+    points += new_nb_case_player - old_nb_case_player
+    points -= (new_nb_case_other - old_nb_case_other) * 0.5
+    return points
 
 
 def previous_state(game_id: int, current_player: int):
