@@ -133,7 +133,7 @@ def update_game_finished(game_state, player):
 
 
 def random_action(
-    board: List[List[int]], pos_player: Tuple[int, int], player: int = 2
+    board: List[List[int]], pos_cur_player: Tuple[int, int], player: int = 2
 ) -> str:
     """Choose a valid random action.
 
@@ -145,19 +145,10 @@ def random_action(
     Returns:
         str: a direction between ['u', 'd', 'l', 'r']
     """
-    choices = []
-    if is_movement_valid(board, player, pos_player, (0, 1)):
-        choices.append("d")
-    if is_movement_valid(board, player, pos_player, (0, -1)):
-        choices.append("u")
-    if is_movement_valid(board, player, pos_player, (1, 0)):
-        choices.append("r")
-    if is_movement_valid(board, player, pos_player, (-1, 0)):
-        choices.append("l")
-    return random.choice(choices)
+    return random.choice(all_valid_movements(board, player, pos_cur_player))
 
 
-def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float):
+def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: float):
     """Update the previous Q[s,a] with the reward and the new Q[s,a]
 
     Args:
@@ -169,10 +160,10 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
     alpha = updated_learning_rate()
     gamma = updated_discount_factor()
 
-    reward_action = q_old_state.get_reward(action) + alpha * (
-        reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
+    quality = q_old_state.get_quality(action) + alpha * (
+        reward_value + gamma * q_new_state.max() - q_old_state.get_quality(action)
     )
-    q_old_state.set_reward(action, reward_action)
+    q_old_state.set_quality(action, quality)
 
 
 def update_epsilon():
@@ -215,7 +206,6 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     How it works:
         - 1 case took by the player = +1 point.
         - 1 case took by the other player = -0.5 point
-        - if loose = -10 points
         - if win = +10 points
 
     Args:
@@ -226,21 +216,21 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     Returns:
         reward: the reward of the previous action
     """
-    old_board, _, _, _ = state_parsed(old_state)
-    new_board, _, _, _ = state_parsed(new_state)
+    old_board, *_ = state_parsed(old_state)
+    new_board, *_ = state_parsed(new_state)
 
-    reward = 0
+    points = 0
 
     old_nb_case_player = old_board.count(str(player))
     new_nb_case_player = new_board.count(str(player))
     old_nb_case_other = old_board.count(str(other_player(player)))
     new_nb_case_other = new_board.count(str(other_player(player)))
 
-    if winner != 0:
-        reward += 10 if winner == player else -10
-    reward += new_nb_case_player - old_nb_case_player
-    reward -= (new_nb_case_other - old_nb_case_other) * 0.5
-    return reward
+    if winner == player:
+        points += 10
+    points += new_nb_case_player - old_nb_case_player
+    points -= (new_nb_case_other - old_nb_case_other) * 0.5
+    return points
 
 
 def previous_state(game_id: int, current_player: int):

@@ -1,0 +1,10 @@
+.deepsource.toml
+sample.env
+.github
+.vscode
+venv
+**/__pycache__
+visualisation
+schema
+# app.db
+# app.log

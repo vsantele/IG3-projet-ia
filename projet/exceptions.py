@@ -1,9 +1,3 @@
-class Error(Exception):
-    """Base class for exception"""
-
-    pass
-
-
 class InvalidPositionException(Exception):
     """Exception raised by an invalid move
     Attirbutes :

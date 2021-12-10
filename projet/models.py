@@ -19,12 +19,13 @@ from .utils import fill_paddock
 db = SQLAlchemy()
 
 
-def init_db():
+def init_db(reset=False):
     """Initialize Database"""
-    db.drop_all()
+    if reset:
+        db.drop_all()
     db.create_all()
 
-    if current_app.config["ENV"] == "development":
+    if reset and current_app.config["ENV"] == "development":
         lg.info("Creating default users")
         # Add test user
         user = User(
@@ -255,7 +256,7 @@ class Qtable(db.Model):
     left = db.Column(db.Float, nullable=False, default=0)
     right = db.Column(db.Float, nullable=False, default=0)
 
-    def get_reward(self, action):
+    def get_quality(self, action):
         """
         Return the reward of the action
 
@@ -275,7 +276,7 @@ class Qtable(db.Model):
             return self.right
         raise InvalidActionException(action)
 
-    def set_reward(self, action, reward):
+    def set_quality(self, action, reward):
         """
         Set the reward of the action
 
@@ -310,7 +311,7 @@ class Qtable(db.Model):
             valid_movements = ["u", "d", "l", "r"]
         available_reward = []
         for mouv in valid_movements:
-            available_reward.append(self.get_reward(mouv))
+            available_reward.append(self.get_quality(mouv))
         return max(available_reward)
 
     def best(self, valid_movements=None):
