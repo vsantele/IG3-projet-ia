@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from .models import User, db, init_db
 from .views import auth_bp, game_bp, admin_bp
 from .utils import parse_users
+from .train import train_ai
 import logging as lg
 
 # APP SETUP
@@ -71,3 +72,11 @@ def load_user(user_id):
 def cmd_init_db():
     """Command to initialize database with flask"""
     init_db()
+
+
+@app.cli.command("train_ai")
+@click.argument("nb_games", type=int, default=1000)
+def cmd_init_db(nb_games):
+    """Command to start a training of the Aik"""
+    for _ in train_ai(nb_games):
+        pass
