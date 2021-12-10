@@ -19,12 +19,13 @@ from .utils import fill_paddock
 db = SQLAlchemy()
 
 
-def init_db():
+def init_db(reset=False):
     """Initialize Database"""
-    db.drop_all()
+    if reset:
+        db.drop_all()
     db.create_all()
 
-    if current_app.config["ENV"] == "development":
+    if reset and current_app.config["ENV"] == "development":
         lg.info("Creating default users")
         # Add test user
         user = User(

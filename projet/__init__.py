@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 from flask_login import LoginManager
+import click
 
 from .models import User, db, init_db
 from .views import auth_bp, game_bp, admin_bp
@@ -43,7 +44,9 @@ app.register_blueprint(admin_bp)
 # DB SETUP
 
 
+app.app_context().push()
 db.init_app(app)
+db.create_all()
 
 # SETUP LOGIN MANAGER
 
@@ -69,9 +72,10 @@ def load_user(user_id):
 
 
 @app.cli.command("init_db")
-def cmd_init_db():
+@click.argument("reset", type=bool, default=False)
+def cmd_init_db(reset):
     """Command to initialize database with flask"""
-    init_db()
+    init_db(reset=reset)
 
 
 @app.cli.command("train_ai")
