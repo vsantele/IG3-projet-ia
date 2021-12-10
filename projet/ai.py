@@ -145,16 +145,7 @@ def random_action(
     Returns:
         str: a direction between ['u', 'd', 'l', 'r']
     """
-    choices = []
-    if is_movement_valid(board, player, pos_player, (0, 1)):
-        choices.append("d")
-    if is_movement_valid(board, player, pos_player, (0, -1)):
-        choices.append("u")
-    if is_movement_valid(board, player, pos_player, (1, 0)):
-        choices.append("r")
-    if is_movement_valid(board, player, pos_player, (-1, 0)):
-        choices.append("l")
-    return random.choice(choices)
+    return random.choice(all_valid_movements(board, player, pos_player))
 
 
 def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float):
@@ -169,10 +160,10 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
     alpha = updated_learning_rate()
     gamma = updated_discount_factor()
 
-    reward_action = q_old_state.get_reward(action) + alpha * (
+    quality = q_old_state.get_reward(action) + alpha * (
         reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
     )
-    q_old_state.set_reward(action, reward_action)
+    q_old_state.set_quality(action, quality)
 
 
 def update_epsilon():
@@ -215,7 +206,6 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     How it works:
         - 1 case took by the player = +1 point.
         - 1 case took by the other player = -0.5 point
-        - if loose = -10 points
         - if win = +10 points
 
     Args:
@@ -226,8 +216,8 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     Returns:
         reward: the reward of the previous action
     """
-    old_board, _, _, _ = state_parsed(old_state)
-    new_board, _, _, _ = state_parsed(new_state)
+    old_board, *_ = state_parsed(old_state)
+    new_board, *_ = state_parsed(new_state)
 
     reward = 0
 
@@ -236,8 +226,8 @@ def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> floa
     old_nb_case_other = old_board.count(str(other_player(player)))
     new_nb_case_other = new_board.count(str(other_player(player)))
 
-    if winner != 0:
-        reward += 10 if winner == player else -10
+    if winner == player:
+        reward += 10
     reward += new_nb_case_player - old_nb_case_player
     reward -= (new_nb_case_other - old_nb_case_other) * 0.5
     return reward

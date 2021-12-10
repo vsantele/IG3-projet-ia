@@ -275,7 +275,7 @@ class Qtable(db.Model):
             return self.right
         raise InvalidActionException(action)
 
-    def set_reward(self, action, reward):
+    def set_quality(self, action, reward):
         """
         Set the reward of the action
 
