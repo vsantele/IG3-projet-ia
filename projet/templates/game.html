@@ -7,7 +7,16 @@
 {%block content %}
 <div>
   <h1 class="title">{%block title %} Game #{{ game_state.game_id }}{%endblock %}</h1>
-  {{board(5)}}
+
+  <div class="columns">
+    <div class="column is-narrow">{{board(5)}}</div>
+    {% if AI_info %}
+    <div class=" column">
+      <h2>Spec</h2>
+      <p>{{AI_info}}</p>
+    </div>
+    {% endif %}
+  </div>
 </div>
 <!-- modal -->
 <div class="modal" id="winner-modal">
