@@ -14,16 +14,15 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, admin_required, user_is_admin
+from .utils import is_email_valid, admin_required, user_is_admin, move_converted
 
-from .ai import get_move
+from .ai import get_move, info
 from .exceptions import (
     GameFinishedException,
     InvalidMoveException,
     InvalidPositionException,
 )
 from .models import Game, User, db
-from .utils import move_converted
 from .train import start_train_ai, stop_train_ai
 
 game_bp = Blueprint("game", __name__)
@@ -136,7 +135,9 @@ def game(game_id):
             ],
             winner=current_game.winner,
         )
-
+    AI_info = None
+    if current_app.debug:
+        AI_info = info()
     return render_template(
         "game.html",
         game_state={
@@ -149,6 +150,7 @@ def game(game_id):
             "winner": current_game.winner,
         },
         name=current_user.name,
+        AI_info=AI_info,
     )
 
 
@@ -240,7 +242,7 @@ def dashboard():
     """
     Dashboard
     """
-    return render_template("admin/dashboard.html")
+    return render_template("admin/dashboard.html", AI_info=info())
 
 
 @admin_bp.route("/admin/start", methods=["GET"])

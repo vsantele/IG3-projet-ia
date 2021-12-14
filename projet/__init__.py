@@ -7,7 +7,7 @@ import click
 from .models import User, db, init_db
 from .views import auth_bp, game_bp, admin_bp
 from .utils import parse_users
-from .train import train_ai
+from .train import start_train_ai
 import logging as lg
 
 # APP SETUP
@@ -82,5 +82,5 @@ def cmd_init_db(reset):
 @click.argument("nb_games", type=int, default=1000)
 def cmd_init_db(nb_games):
     """Command to start a training of the Aik"""
-    for _ in train_ai(nb_games):
+    for _ in start_train_ai(nb_games):
         pass

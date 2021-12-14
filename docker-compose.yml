@@ -26,7 +26,7 @@ services:
       MYSQL_USER: mariadb
       MYSQL_PASSWORD: mariadb
     volumes:
-      - splaiai_db_data:/var/lib/mysql
+      - splatai_db_data:/var/lib/mysql
     expose:
       - 3306
 
@@ -38,4 +38,4 @@ services:
     depends_on:
       - mariadb
 volumes:
-  splaiai_db_data:
+  splatai_db_data:
