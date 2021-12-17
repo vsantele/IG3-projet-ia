@@ -14,16 +14,16 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, admin_required, user_is_admin
+from projet.utils import is_email_valid, admin_required, user_is_admin, state_parsed, all_valid_movements
 
-from .ai import get_move
+from .ai import get_move, pos_player
 from .exceptions import (
     GameFinishedException,
     InvalidMoveException,
     InvalidPositionException,
 )
-from .models import Game, User, db
-from .utils import move_converted
+from .models import Game, Qtable, User, db
+from .utils import move_converted, state_is_valid
 from .train import start_train_ai, stop_train_ai
 
 game_bp = Blueprint("game", __name__)
@@ -59,6 +59,28 @@ def display_stat():
     """ """
     return render_template("stat.html")
 
+@game_bp.route("/game/hint",methods=["GET"])
+@login_required
+def hint():
+    movements = {
+        "u" : "up",
+        "d" : "down",
+        "l" : "left",
+        "r" : "right"
+    }
+    state = request.args.get('state')
+    if state_is_valid(state) : 
+        q_table_line = Qtable.query.get(state)
+        if q_table_line is not None :
+            board, pos_player1, *_  = state_parsed(state)
+            return jsonify(move = movements[q_table_line.best(all_valid_movements(Game.board_to_array(board),1, pos_player1))])
+        res = jsonify(message = "We can not help you in this case, sorry!")
+        res.status = 500
+        return res
+    res = jsonify(message = "State is not valid");
+    res.status = 400;
+    return res;
+    
 
 @game_bp.route("/game/<int:game_id>", methods=["GET", "POST"])
 @login_required
@@ -267,3 +289,4 @@ def stop_train():
     stop_train_ai()
     flash("Training stopped")
     return redirect(url_for("admin.dashboard"))
+

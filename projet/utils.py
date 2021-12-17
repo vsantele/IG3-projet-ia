@@ -7,7 +7,7 @@ from flask import current_app
 
 from functools import wraps
 
-from typing import List
+from typing import List,Tuple
 
 
 def is_email_valid(email: str):
@@ -309,3 +309,85 @@ def beautify_board(board):
         str: the board
     """
     return "\n".join([" ".join([str(cell) for cell in row]) for row in board])
+
+def state_is_valid(state):
+    """Check the state
+
+    Check if the state has a valid form
+
+    Args :
+        state : the current state to test
+
+    Returns:
+        bool : the validity of the state
+    
+    """
+    return state is not None and len(state) == 30
+
+def all_valid_movements(
+    board: List[List[int]], player: int, pos: Tuple[int, int]
+) -> List[str]:
+    """Return all valid movements for a player
+
+    Args:
+        board (List[List[int]]): the board
+        player (int): the player number
+        pos (tuple(int,int)): the position of the player
+
+    Returns:
+        List[str]: All valid movements
+    """
+    movements = []
+    if is_movement_valid(board, player, pos, (0, 1)):
+        movements += ["d"]
+    if is_movement_valid(board, player, pos, (0, -1)):
+        movements += ["u"]
+    if is_movement_valid(board, player, pos, (1, 0)):
+        movements += ["r"]
+    if is_movement_valid(board, player, pos, (-1, 0)):
+        movements += ["l"]
+    return movements
+
+def state_parsed(state: str) -> Tuple[str, int, int, int]:
+    """Retreive state information from the string
+
+    Args:
+        state (string): state concat in string
+
+    Returns:
+        str: board: the board in string
+        int: pos_player_1: the position of player 1 in a tuple
+        int: pos_player_2: the position of player 2 in a tuple
+        int: turn: the player who has to play.
+    """
+    board = state[:25]
+    p1_x = int(state[25])
+    p1_y = int(state[26])
+    p2_x = int(state[27])
+    p2_y = int(state[28])
+    pos_player1 = p1_x, p1_y
+    pos_player2 = p2_x, p2_y
+    turn = int(state[29])
+    return board, pos_player1, pos_player2, turn
+
+def state_str(game_state) -> str:
+    """Convert game state to string state
+
+    Args:
+        game_state (Game): the game object from db
+
+    Returns:
+        str: the converted string state
+    """
+    board = game_state.board
+    pos_player_1 = game_state.pos_player_1
+    pos_player_2 = game_state.pos_player_2
+    turn = game_state.current_player
+    return (
+        board
+        + str(pos_player_1[0])
+        + str(pos_player_1[1])
+        + str(pos_player_2[0])
+        + str(pos_player_2[1])
+        + str(turn)
+    )

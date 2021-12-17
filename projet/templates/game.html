@@ -9,6 +9,10 @@
   <h1 class="title">{%block title %} Game #{{ game_state.game_id }}{%endblock %}</h1>
   {{board(5)}}
 </div>
+<div>
+  <button class="button is-primary is-large" id="hint" onclick=send_help()>Hint</button>
+</div>
+ <!-- TODO arriver à mettre le meilleur prochain coup au joueur -->
 <!-- modal -->
 <div class="modal" id="winner-modal">
   <div class="modal-background"></div>

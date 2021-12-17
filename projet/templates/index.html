@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-  <h1 class="title">{% block title %}SplatAI {% endblock %} </h1>
+  <h1 class="title content has-text-centered" input type="text">{% block title %}SplatAI {% endblock %} </h1>
   {% with messages = get_flashed_messages() %} {% if messages %}
   <div class="notification is-danger">{{ messages[0] }}</div>
   {% endif %} {% endwith %}
