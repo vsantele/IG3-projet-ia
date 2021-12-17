@@ -350,13 +350,13 @@ def all_valid_movements(
         List[str]: All valid movements
     """
     movements = []
-    if is_movement_valid(board, player, pos, (0, 1)):
+    if is_movement_valid(board, player, pos, move_converted("d")):
         movements += ["d"]
-    if is_movement_valid(board, player, pos, (0, -1)):
+    if is_movement_valid(board, player, pos, move_converted("u")):
         movements += ["u"]
-    if is_movement_valid(board, player, pos, (1, 0)):
+    if is_movement_valid(board, player, pos, move_converted("r")):
         movements += ["r"]
-    if is_movement_valid(board, player, pos, (-1, 0)):
+    if is_movement_valid(board, player, pos, move_converted("l")):
         movements += ["l"]
     return movements
 
@@ -378,9 +378,24 @@ def set_parameters(mode: str):
     global epsilon, learning_rate, discount_factor
     if mode == "train":
         epsilon = 0.99
-        learning_rate = 0.9
+        learning_rate = 0.3
         discount_factor = 0.1
     else:
         epsilon = 0.01
         learning_rate = 0.1
         discount_factor = 0.9
+
+
+def get_move_random(game_state: Game, player: int) -> Tuple[int, int]:
+    """Return a random movement
+
+    Args:
+        game_state (Game): the current state of the game
+        player (int): the player number
+
+    Returns:
+        Tuple[int, int]: a random movement
+    """
+    return move_converted(
+        random_action(game_state.board_array, pos_player(game_state, player), player)
+    )

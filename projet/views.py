@@ -23,7 +23,7 @@ from .exceptions import (
     InvalidPositionException,
 )
 from .models import Game, User, db
-from .train import start_train_ai, stop_train_ai
+from .train import start_train_ai, stop_train_ai, start_test_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -148,6 +148,7 @@ def game(game_id):
                 list(current_game.pos_player_2),
             ],
             "winner": current_game.winner,
+            "is_finished": current_game.is_finished,
         },
         name=current_user.name,
         AI_info=AI_info,
@@ -245,21 +246,21 @@ def dashboard():
     return render_template("admin/dashboard.html", AI_info=info())
 
 
-@admin_bp.route("/admin/start", methods=["GET"])
+@admin_bp.route("/admin/train/start", methods=["GET"])
 @login_required
 @admin_required
 def start_train():
     """
     Start training
     """
-    # TODO : update a template instead of print line in a text
-    # https://flask.palletsprojects.com/en/2.0.x/patterns/streaming/#streaming-from-templates
+    n_games = request.args.get("n_games", 1000, type=int)
+
     return current_app.response_class(
-        stream_with_context(start_train_ai(n_games=100_000)), mimetype="text/plain"
+        stream_with_context(start_train_ai(n_games=n_games)), mimetype="text/plain"
     )
 
 
-@admin_bp.route("/admin/stop", methods=["GET"])
+@admin_bp.route("/admin/train/stop", methods=["GET"])
 @login_required
 @admin_required
 def stop_train():
@@ -269,3 +270,16 @@ def stop_train():
     stop_train_ai()
     flash("Training stopped")
     return redirect(url_for("admin.dashboard"))
+
+
+@admin_bp.route("/admin/test/start", methods=["GET"])
+@login_required
+@admin_required
+def start_test():
+    """
+    Start training
+    """
+    n_games = request.args.get("n_games", 1000, type=int)
+    return current_app.response_class(
+        stream_with_context(start_test_ai(n_games=n_games)), mimetype="text/plain"
+    )

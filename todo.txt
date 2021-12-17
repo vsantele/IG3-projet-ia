@@ -1,0 +1,9 @@
+HIGH:
+  - fix generation of documentation
+MEDIUM:
+  - check if "remember me" works
+  - Model: check property board_array and board_to_array
+  - Admin: Add nb games to train and test.
+  - Admin: Better view results
+LOW:
+  - improve style

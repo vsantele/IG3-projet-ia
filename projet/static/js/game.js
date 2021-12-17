@@ -134,16 +134,26 @@ function endOfGame(body) {
   // 1: creer le modal dans la page en html
   // et ds le modal mettre des span avec les joueurs et nb de points
   const winner = document.getElementById("winner");
-  const winnerCells = document.getElementById("winner-cells");
+  const playerCells = document.getElementById("player-cells");
   const boardSize = document.getElementById("board-size");
+  const winnerSubtitle = document.getElementById("winner-subtitle");
 
   // 2: actualiser les span avec les bonnes infos
-  winner.innerText = body.winner;
-  winnerCells.innerText = countCases(body.winner, body.board);
+  winner.innerText = youWinOrLoose(body.winner);
+  winnerSubtitle.innerText = youWinOrLoose(body.winner);
+  playerCells.innerText = countCases(1, body.board);
   boardSize.innerText = body.board.length;
-
   // 3: activer le modal == rajouter une classe is-active au modal
   toggleModal(true);
+}
+
+function youWinOrLoose(winner) {
+  if (winner === 1) {
+    return "You win !";
+  } else if (winner === 2) {
+    return "You loose !";
+  }
+  return "";
 }
 
 async function caseTrigger(movement) {

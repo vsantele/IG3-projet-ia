@@ -2,8 +2,50 @@
 <a class="button is-primary is-large" href='{{url_for("admin.start_train")}}'>
   Start training
 </a>
-<a class="button is-primary is-large" href='{{url_for("admin.stop_train")}}'>
-  Stop training
+<a class="button is-primary is-large" id="startTesting">
+  Start testing
 </a>
+<p class="mt-3">
+  <progress id="testProgress" class="progress is-success" value="0" max="100"></progress>
+</p>
+<p id="resTesting"></p>
+
 <p>{{AI_info}}</p>
-{% endblock %} {% block js %} {% endblock %}
+{% endblock %}
+{% block js %}
+<script>
+  const testProgress = document.getElementById('testProgress');
+  const n_games_test = 10;
+  async function readAllChunks(readableStream) {
+    const reader = readableStream.getReader();
+    let line;
+    let n_receives = 0
+    let done, value;
+    while (!done) {
+      ({ value, done } = await reader.read());
+      if (done) {
+        return new TextDecoder().decode(line);
+      }
+      line = value;
+      n_receives++;
+      updateProgress(n_receives, n_games_test);
+
+    }
+  }
+
+  function updateProgress(n_receives, n_games_test) {
+    const progress = n_receives / n_games_test * 100;
+    testProgress.value = progress;
+  }
+  const startTesting = document.getElementById("startTesting");
+  const resTesting = document.getElementById("resTesting");
+  startTesting.addEventListener("click", async function () {
+    updateProgress(0, n_games_test);
+    const res = await fetch("{{url_for('admin.start_test')}}");
+    const body = res.body
+    const result = await readAllChunks(body)
+    resTesting.innerHTML = result;
+  });
+
+</script>
+{% endblock %}

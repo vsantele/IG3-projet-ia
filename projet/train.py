@@ -3,6 +3,7 @@ import logging as lg
 from .models import Game, db
 from .ai import (
     get_move,
+    get_move_random,
     update_discount_factor,
     update_game_finished,
     info,
@@ -51,3 +52,30 @@ def start_train_ai(n_games=1000):
 
 def stop_train_ai():
     pass
+
+
+def test_ai(n_games=100):
+    n_games_won = 0
+    for x in range(n_games):
+        game = Game()
+        db.session.add(game)
+        db.session.commit()
+        lg.info("Game {}/{} started".format(x + 1, n_games))
+        while not game.is_finished:
+            try:
+                game.move(get_move_random(game, 1), 1)
+                game.move(get_move(game), 2)
+            except GameFinishedException:
+                break
+        update_game_finished(game, 2)
+        lg.info("\n" + beautify_board(game.board_array))
+        yield f"{x+1}\n"
+        db.session.commit()
+        if game.winner == 2:
+            n_games_won += 1
+    yield f"{n_games_won}/{n_games} games won ({n_games_won/n_games*100}%)"
+
+
+def start_test_ai(n_games=100):
+    set_parameters("play")
+    return test_ai(n_games)
