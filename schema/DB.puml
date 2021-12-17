@@ -6,7 +6,6 @@ entity Game{
     *id
     --
     *datetime
-    *userId1
     *vs_ai
     *board
     *posPlayer1X
