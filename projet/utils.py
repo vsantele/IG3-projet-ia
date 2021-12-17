@@ -7,7 +7,7 @@ from flask import current_app
 
 from functools import wraps
 
-from typing import List,Tuple
+from typing import List, Tuple
 
 
 def is_email_valid(email: str):
@@ -310,6 +310,7 @@ def beautify_board(board):
     """
     return "\n".join([" ".join([str(cell) for cell in row]) for row in board])
 
+
 def state_is_valid(state):
     """Check the state
 
@@ -320,9 +321,10 @@ def state_is_valid(state):
 
     Returns:
         bool : the validity of the state
-    
+
     """
     return state is not None and len(state) == 30
+
 
 def all_valid_movements(
     board: List[List[int]], player: int, pos: Tuple[int, int]
@@ -348,6 +350,7 @@ def all_valid_movements(
         movements += ["l"]
     return movements
 
+
 def state_parsed(state: str) -> Tuple[str, int, int, int]:
     """Retreive state information from the string
 
@@ -369,6 +372,7 @@ def state_parsed(state: str) -> Tuple[str, int, int, int]:
     pos_player2 = p2_x, p2_y
     turn = int(state[29])
     return board, pos_player1, pos_player2, turn
+
 
 def state_str(game_state) -> str:
     """Convert game state to string state
