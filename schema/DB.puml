@@ -6,12 +6,14 @@ entity Game{
     *id
     --
     *datetime
+    *userId1
+    *vs_ai
     *board
-    *playerTurn
     *posPlayer1X
     *posPlayer1Y
     *posPlayer2X
     *posPlayer2Y
+    *current_player
 }
 
 
