@@ -30,7 +30,7 @@ from .exceptions import (
 )
 from .models import Game, Qtable, User, db
 from .utils import move_converted, state_is_valid
-from .train import start_train_ai, stop_train_ai,start_test_ai
+from .train import start_train_ai, stop_train_ai, start_test_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
