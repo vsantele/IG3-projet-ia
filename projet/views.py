@@ -16,7 +16,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from projet.utils import is_email_valid, admin_required, user_is_admin, state_parsed, all_valid_movements
 
-from .ai import get_move, pos_player
+from .ai import get_move, info
 from .exceptions import (
     GameFinishedException,
     InvalidMoveException,
@@ -24,7 +24,7 @@ from .exceptions import (
 )
 from .models import Game, Qtable, User, db
 from .utils import move_converted, state_is_valid
-from .train import start_train_ai, stop_train_ai
+from .train import start_train_ai, stop_train_ai,start_test_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -158,7 +158,9 @@ def game(game_id):
             ],
             winner=current_game.winner,
         )
-
+    AI_info = None
+    if current_app.debug:
+        AI_info = info()
     return render_template(
         "game.html",
         game_state={
@@ -169,8 +171,10 @@ def game(game_id):
                 list(current_game.pos_player_2),
             ],
             "winner": current_game.winner,
+            "is_finished": current_game.is_finished,
         },
         name=current_user.name,
+        AI_info=AI_info,
     )
 
 
@@ -262,24 +266,24 @@ def dashboard():
     """
     Dashboard
     """
-    return render_template("admin/dashboard.html")
+    return render_template("admin/dashboard.html", AI_info=info())
 
 
-@admin_bp.route("/admin/start", methods=["GET"])
+@admin_bp.route("/admin/train/start", methods=["GET"])
 @login_required
 @admin_required
 def start_train():
     """
     Start training
     """
-    # TODO : update a template instead of print line in a text
-    # https://flask.palletsprojects.com/en/2.0.x/patterns/streaming/#streaming-from-templates
+    n_games = request.args.get("n_games", 1000, type=int)
+
     return current_app.response_class(
-        stream_with_context(start_train_ai(n_games=100_000)), mimetype="text/plain"
+        stream_with_context(start_train_ai(n_games=n_games)), mimetype="text/plain"
     )
 
 
-@admin_bp.route("/admin/stop", methods=["GET"])
+@admin_bp.route("/admin/train/stop", methods=["GET"])
 @login_required
 @admin_required
 def stop_train():
@@ -290,3 +294,15 @@ def stop_train():
     flash("Training stopped")
     return redirect(url_for("admin.dashboard"))
 
+
+@admin_bp.route("/admin/test/start", methods=["GET"])
+@login_required
+@admin_required
+def start_test():
+    """
+    Start training
+    """
+    n_games = request.args.get("n_games", 1000, type=int)
+    return current_app.response_class(
+        stream_with_context(start_test_ai(n_games=n_games)), mimetype="text/plain"
+    )

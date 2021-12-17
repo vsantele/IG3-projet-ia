@@ -1,5 +1,12 @@
 import pytest
-from projet.utils import is_email_valid, fill_paddock, is_movement_valid, parse_users
+from projet.utils import (
+    is_email_valid,
+    fill_paddock,
+    is_movement_valid,
+    parse_users,
+    beautify_board,
+    move_converted,
+)
 
 
 @pytest.mark.parametrize(
@@ -112,7 +119,6 @@ def test_fill_paddock(board_in, board_out):
     assert fill_paddock(board_in) == board_out
 
 
-#! WARNING TODO: Check is working
 @pytest.mark.parametrize(
     ("board", "player", "player_pos", "movement", "is_valid"),
     [
@@ -246,3 +252,43 @@ def test_is_movement_valid(board, player, player_pos, movement, is_valid):
 def test_parse_users(email_string, emails):
     """Test `parse_users`."""
     assert parse_users(email_string) == emails
+
+
+@pytest.mark.parametrize(
+    ("board", "board_out"),
+    [
+        (
+            [
+                [1, 1, 0, 0, 0],
+                [1, 1, 0, 0, 0],
+                [1, 1, 1, 2, 2],
+                [0, 0, 0, 2, 2],
+                [0, 0, 0, 2, 2],
+            ],
+            "1 1 0 0 0\n1 1 0 0 0\n1 1 1 2 2\n0 0 0 2 2\n0 0 0 2 2",
+        )
+    ],
+)
+def test_beautify_board(board, board_out):
+    """Test `beautify_board`."""
+    assert beautify_board(board) == board_out
+
+
+@pytest.mark.parametrize(
+    ("move", "converted"),
+    [
+        ("left", (-1, 0)),
+        ("l", (-1, 0)),
+        ("right", (1, 0)),
+        ("r", (1, 0)),
+        ("up", (0, -1)),
+        ("u", (0, -1)),
+        ("down", (0, 1)),
+        ("d", (0, 1)),
+        ("dfds", None),
+        (None, None),
+    ],
+)
+def test_move_converted(move, converted):
+    """Test `move_converted`."""
+    assert move_converted(move) == converted

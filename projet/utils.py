@@ -210,7 +210,7 @@ def is_movement_valid(board, player, player_pos, movement):
     dx, dy = movement
     return (
         x + dx >= 0
-        and x + dx < len(board)
+        and x + dx < len(board[0])
         and y + dy >= 0
         and y + dy < len(board)
         and board[y + dy][x + dx] in (0, player)
@@ -234,6 +234,7 @@ def move_converted(move):
         return (0, -1)
     if move in ("down", "d"):
         return (0, 1)
+    return None
 
 
 def called(func):
@@ -299,7 +300,7 @@ def admin_required(func):
     return decorated_view
 
 
-def beautify_board(board):
+def beautify_board(board: List[List[int]]):
     """Beautify the board.
 
     Args:

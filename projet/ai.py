@@ -15,9 +15,9 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 
 """
 
-epsilon = 0.95
-learning_rate = 0.99
-discount_factor = 0.1
+epsilon = 0.01
+learning_rate = 0.1
+discount_factor = 0.9
 
 
 @timer
@@ -71,8 +71,6 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
-        # very slowly down of the epsilon
-        update_epsilon()
     # exploit step
     else:
         # lg.debug("Exploit")
@@ -157,8 +155,9 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: 
         q_new_state (Qtable): The new Q[s,a]
         reward (float): the reward from the previous action
     """
-    alpha = updated_learning_rate()
-    gamma = updated_discount_factor()
+    global learning_rate, discount_factor
+    alpha = learning_rate
+    gamma = discount_factor
 
     quality = q_old_state.get_quality(action) + alpha * (
         reward_value + gamma * q_new_state.max() - q_old_state.get_quality(action)
@@ -173,7 +172,7 @@ def update_epsilon():
         epsilon = epsilon * 0.9999
 
 
-def updated_learning_rate():
+def update_learning_rate():
     """Return the learning_rate from global variable
 
     Returns:
@@ -182,10 +181,9 @@ def updated_learning_rate():
     global learning_rate
     if learning_rate > 0.1:
         learning_rate = learning_rate * 0.9999
-    return learning_rate
 
 
-def updated_discount_factor():
+def update_discount_factor():
     """Return the discount_factor from global variable
 
     0 = short-sighted
@@ -197,7 +195,6 @@ def updated_discount_factor():
     global discount_factor
     if discount_factor < 0.99:
         discount_factor *= 1.0001
-    return discount_factor
 
 
 def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> float:
@@ -310,4 +307,31 @@ def info():
         + " | "
         + "DF: "
         + str(discount_factor)
+    )
+
+
+def set_parameters(mode: str):
+    global epsilon, learning_rate, discount_factor
+    if mode == "train":
+        epsilon = 0.99
+        learning_rate = 0.3
+        discount_factor = 0.1
+    else:
+        epsilon = 0.01
+        learning_rate = 0.1
+        discount_factor = 0.9
+
+
+def get_move_random(game_state: Game, player: int) -> Tuple[int, int]:
+    """Return a random movement
+
+    Args:
+        game_state (Game): the current state of the game
+        player (int): the player number
+
+    Returns:
+        Tuple[int, int]: a random movement
+    """
+    return move_converted(
+        random_action(game_state.board_array, pos_player(game_state, player), player)
     )

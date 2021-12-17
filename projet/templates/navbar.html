@@ -1,15 +1,18 @@
 {% macro navbar(current_user) %}
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav class="navbar is-active" role="navigation" aria-label="main navigation">
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <a class="navbar-item" href="{{url_for('game.index')}}">
-        Home
+        <span class="icon-text">
+          <span class="icon"><i class="fas fa-home"></i></span>
+          <span>Home</span>
+        </span>
       </a>
     </div>
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
-          {% if current_user.is_authenticated %}    
+          {% if current_user.is_authenticated %}
           <a class="button is-light" href='{{url_for("auth.logout")}}'>
             Log out
           </a>
