@@ -218,24 +218,24 @@ window.addEventListener("DOMContentLoaded", () => {
   // setClickable();
 });
 
-async function send_help(){
+async function send_help() {
   let state = state_str();
-  try{
+  try {
     const response = await fetch(`/game/hint?state=${state}`, {
       method: "GET",
     });
     const data = await response.json();
-    if(response.ok){
+    if (response.ok) {
       bulmaToast.toast({
         message: "the best move is : " + data.move,
         type: "is-success",
-        position: "top-center"
+        position: "top-center",
       });
-    } else{
+    } else {
       bulmaToast.toast({
         message: "error : " + data.message,
         type: "is-danger",
-        position: "top-center"
+        position: "top-center",
       });
     }
   } catch (err) {
@@ -247,9 +247,15 @@ async function send_help(){
     console.error(err);
   }
 }
-function state_str(){
-  window.boardString
-  window.players
-  return window.boardString + window.players[0][0] +  window.players[0][1] + window.players[1][0] + window.players[1][1] +1;
-
+function state_str() {
+  window.boardString;
+  window.players;
+  return (
+    window.boardString +
+    window.players[0][0] +
+    window.players[0][1] +
+    window.players[1][0] +
+    window.players[1][1] +
+    1
+  );
 }

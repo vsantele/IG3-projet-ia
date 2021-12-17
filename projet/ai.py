@@ -244,9 +244,6 @@ def previous_state(game_id: int, current_player: int):
     return previous
 
 
-
-
-
 def other_player(player: int) -> int:
     """Get the other player number
 
@@ -275,8 +272,6 @@ def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
     return game_state.pos_player_2
 
 
-
-
 def q_state(state: str) -> Qtable:
     """Retreive the qtable line for the state if it exists.
     Otherwise create it and return it.
@@ -293,8 +288,6 @@ def q_state(state: str) -> Qtable:
         db.session.add(q)
         db.session.commit()
     return q
-
-
 
 
 def info():
