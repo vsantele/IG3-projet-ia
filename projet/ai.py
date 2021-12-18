@@ -48,9 +48,6 @@ def get_move(game_state: Game) -> Tuple[int, int]:
         tuple[int,int]: the selected movement
 
     """
-    global epsilon
-    global learning_rate
-    global discount_factor
     x, y = pos_player(game_state, game_state.current_player)
 
     # 1. find the history and update in the QTable in regards of the movement
@@ -112,7 +109,6 @@ def update_game_finished(game_state, player):
     Args:
         game_state (Game): the game state
     """
-
     new_state = state_str(game_state)
     old_state = previous_state(game_state.id, player)
 
@@ -155,7 +151,6 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: 
         q_new_state (Qtable): The new Q[s,a]
         reward (float): the reward from the previous action
     """
-    global learning_rate, discount_factor
     alpha = learning_rate
     gamma = discount_factor
 
