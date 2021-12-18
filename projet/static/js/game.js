@@ -167,6 +167,7 @@ async function caseTrigger(movement) {
       });
       const body = await response.json();
       if (response.ok) {
+        window.boardString = body.board;
         window.board = parseBoard(body.board);
         window.players = body.players;
         window.winner = body.winner;
@@ -233,7 +234,7 @@ async function send_help() {
       });
     } else {
       bulmaToast.toast({
-        message: "error : " + data.message,
+        message: data.message,
         type: "is-danger",
         position: "top-center",
       });
@@ -256,6 +257,6 @@ function state_str() {
     window.players[0][1] +
     window.players[1][0] +
     window.players[1][1] +
-    1
+    "1"
   );
 }

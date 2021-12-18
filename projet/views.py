@@ -85,7 +85,7 @@ def hint():
         res = jsonify(message="We can not help you in this case, sorry!")
         res.status = 500
         return res
-    res = jsonify(message="State is not valid")
+    res = jsonify(message="Error: State is not valid")
     res.status = 400
     return res
 

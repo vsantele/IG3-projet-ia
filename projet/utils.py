@@ -312,7 +312,7 @@ def beautify_board(board: List[List[int]]):
     return "\n".join([" ".join([str(cell) for cell in row]) for row in board])
 
 
-def state_is_valid(state):
+def state_is_valid(state, board_size=5):
     """Check the state
 
     Check if the state has a valid form
@@ -324,7 +324,18 @@ def state_is_valid(state):
         bool : the validity of the state
 
     """
-    return state is not None and len(state) == 30
+    if state is None or len(state) != 30:
+        return False
+
+    board, pos_player_1, pos_player_2, current_player = state_parsed(state)
+    return (
+        all(int(cell) in (0, 1, 2) for cell in board)
+        and all(int(coord) in range(board_size) for coord in pos_player_1)
+        and all(int(coord) in range(board_size) for coord in pos_player_2)
+        and int(current_player) in (1, 2)
+        and board[pos_player_1[1] * board_size + pos_player_1[0]] == "1"
+        and board[pos_player_2[1] * board_size + pos_player_2[0]] == "2"
+    )
 
 
 def all_valid_movements(
