@@ -249,8 +249,8 @@ async function send_help() {
   }
 }
 function state_str() {
-  window.boardString;
-  window.players;
+  
+  
   return (
     window.boardString +
     window.players[0][0] +
