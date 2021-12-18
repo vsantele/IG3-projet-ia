@@ -114,6 +114,14 @@ class Game(db.Model):
         default=1,
     )
 
+    @classmethod
+    def board_to_array(cls, board):
+        """Convert board to double array"""
+        return [
+            [int(board[x * cls.size + y]) for y in range(0, cls.size)]
+            for x in range(0, cls.size)
+        ]
+
     @staticmethod
     def board_to_string(board):
         """Convert board to string"""

@@ -167,6 +167,7 @@ async function caseTrigger(movement) {
       });
       const body = await response.json();
       if (response.ok) {
+        window.boardString = body.board;
         window.board = parseBoard(body.board);
         window.players = body.players;
         window.winner = body.winner;
@@ -217,3 +218,43 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // setClickable();
 });
+
+async function send_help() {
+  let state = state_str();
+  try {
+    const response = await fetch(`/game/hint?state=${state}`, {
+      method: "GET",
+    });
+    const data = await response.json();
+    if (response.ok) {
+      bulmaToast.toast({
+        message: "the best move is : " + data.move,
+        type: "is-success",
+        position: "top-center",
+      });
+    } else {
+      bulmaToast.toast({
+        message: data.message,
+        type: "is-danger",
+        position: "top-center",
+      });
+    }
+  } catch (err) {
+    bulmaToast.toast({
+      message: "Une erreur inconnue est survenue",
+      type: "is-danger",
+      position: "top-center",
+    });
+    console.error(err);
+  }
+}
+function state_str() {
+  return (
+    window.boardString +
+    window.players[0][0] +
+    window.players[0][1] +
+    window.players[1][0] +
+    window.players[1][1] +
+    "1"
+  );
+}
