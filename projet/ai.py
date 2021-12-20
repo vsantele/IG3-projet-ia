@@ -68,6 +68,7 @@ def get_move(game_state: Game) -> Tuple[int, int]:
 
         update(old_state.movement, q_old_state, q_new_state, rew)
 
+    # 2. choose the step between explore or exploit
     # explore step
     if random.uniform(0, 1) < epsilon:
         # lg.debug("Explore")
