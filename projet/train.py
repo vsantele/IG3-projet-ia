@@ -9,7 +9,6 @@ from .ai import (
     info,
     set_parameters,
     update_epsilon,
-    update_learning_rate,
 )
 from .exceptions import GameFinishedException
 from .utils import beautify_board
@@ -26,14 +25,14 @@ def train_ai(n_games=1000):
         while not game.is_finished:
             try:
                 game.move(get_move(game), 1)
+                nb_turn += 1
                 game.move(get_move(game), 2)
-                nb_turn += 2
+                nb_turn += 1
             except GameFinishedException:
                 break
         update_game_finished(game, 1)
         update_game_finished(game, 2)
         update_epsilon()
-        update_learning_rate()
         update_discount_factor()
         lg.info(game.winner)
         lg.info("Game {} finished in {} turns".format(game.id, nb_turn))

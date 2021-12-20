@@ -15,6 +15,12 @@ board posPlayer1 posPlayer2 turn (which player is playing) up down left right
 
 """
 
+MIN_EPSILON = 0.01
+MAX_EPSILON = 0.99
+
+MIN_DISCOUNT_FACTOR = 0.1
+MAX_DISCOUNT_FACTOR = 0.8
+
 epsilon = 0.01
 learning_rate = 0.1
 discount_factor = 0.9
@@ -167,17 +173,6 @@ def update_epsilon():
         epsilon = epsilon * 0.9999
 
 
-def update_learning_rate():
-    """Return the learning_rate from global variable
-
-    Returns:
-        float: the updated learning_rate
-    """
-    global learning_rate
-    if learning_rate > 0.1:
-        learning_rate = learning_rate * 0.9999
-
-
 def update_discount_factor():
     """Return the discount_factor from global variable
 
@@ -188,7 +183,7 @@ def update_discount_factor():
         float: the updated discount_factor
     """
     global discount_factor
-    if discount_factor < 0.99:
+    if discount_factor < MAX_DISCOUNT_FACTOR:
         discount_factor *= 1.0001
 
 
@@ -301,13 +296,13 @@ def info():
 def set_parameters(mode: str):
     global epsilon, learning_rate, discount_factor
     if mode == "train":
-        epsilon = 0.99
-        learning_rate = 0.3
-        discount_factor = 0.1
-    else:
-        epsilon = 0.01
+        epsilon = MAX_EPSILON
         learning_rate = 0.1
-        discount_factor = 0.9
+        discount_factor = MIN_DISCOUNT_FACTOR
+    else:
+        epsilon = MIN_EPSILON
+        learning_rate = 0.1
+        discount_factor = MAX_DISCOUNT_FACTOR
 
 
 def get_move_random(game_state: Game, player: int) -> Tuple[int, int]:
