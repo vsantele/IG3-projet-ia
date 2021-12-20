@@ -1,22 +1,38 @@
 {% extends 'base.html' %} {% block css %} {% endblock %} {%block content %}
-<a class="button is-primary is-large" href='{{url_for("admin.start_train")}}'>
-  Start training
-</a>
-<a class="button is-primary is-large" id="startTesting">
-  Start testing
-</a>
+<div class="columns">
+  <div class="column is-one-fifth">
+    <button class="button is-primary is-large mb-2" id="startTraining">
+      Start training
+    </button>
+    <div style="width: 15em;">
+      <input id="nbGameTrain" class="input is-large" type="number" value="1000" placeholder="Number of game">
+    </div>
+  </div>
+  <div class="column is-one-fifth">
+    <button class="button is-primary is-large mb-2" id="startTesting">
+      Start testing
+    </button>
+    <div style="width: 15em;">
+      <input id="nbGameTest" class="input is-large" type="number" value="100" placeholder="Number of game">
+    </div>
+  </div>
+  <div class="column is-one-fifth">
+    <button class="button is-error is-large is-hidden" id="stop">Stop</button>
+  </div>
+</div>
 <p class="mt-3">
   <progress id="testProgress" class="progress is-success" value="0" max="100"></progress>
 </p>
-<p id="resTesting"></p>
+<p id="result"></p>
 
 <p>{{AI_info}}</p>
 {% endblock %}
 {% block js %}
 <script>
+  const controller = new AbortController();
   const testProgress = document.getElementById('testProgress');
   const n_games_test = 10;
-  async function readAllChunks(readableStream) {
+  async function readAllChunks(readableStream, nbGame) {
     const reader = readableStream.getReader();
     let line;
     let n_receives = 0
@@ -28,7 +44,7 @@
       }
       line = value;
       n_receives++;
-      updateProgress(n_receives, n_games_test);
+      updateProgress(n_receives, nbGame);
 
     }
   }
@@ -38,13 +54,84 @@
     testProgress.value = progress;
   }
   const startTesting = document.getElementById("startTesting");
-  const resTesting = document.getElementById("resTesting");
+  const startTraining = document.getElementById("startTraining");
+  const resultDiv = document.getElementById("result");
+  startTraining.addEventListener("click", async function () {
+    startTesting.disabled = true;
+    document.getElementById("nbGameTrain").disabled = true;
+    document.getElementById("nbGameTest").disabled = true;
+    document.getElementById("stop").classList.toggle("is-hidden", false);
+    const nbGame = document.getElementById("nbGameTrain").value;
+    updateProgress(0, nbGame);
+    try {
+      const res = await fetch("{{url_for('admin.start_train')}}?n_games=" + nbGame, { signal: controller.signal });
+      const body = res.body;
+      const result = await readAllChunks(body, nbGame);
+      resultDiv.innerHTML = result;
+    } catch (e) {
+      document.getElementById("stop").classList.toggle("is-hidden", true);
+      startTesting.disabled = false;
+      document.getElementById("nbGameTrain").disabled = false;
+      document.getElementById("nbGameTest").disabled = false;
+
+      if (e.name === "AbortError") {
+        bulmaToast.toast({
+          message: "Training Canceled",
+          type: "is-danger",
+          position: "top-center",
+        });
+      } else {
+        bulmaToast.toast({
+          message: "Unknown Error : " + e.message,
+          type: "is-danger",
+          position: "top-center",
+        });
+      }
+    }
+
+    startTesting.disabled = false;
+    document.getElementById("nbGameTrain").disabled = false;
+    document.getElementById("nbGameTest").disabled = false;
+    document.getElementById("stop").classList.toggle("is-hidden", true);
+  });
   startTesting.addEventListener("click", async function () {
-    updateProgress(0, n_games_test);
-    const res = await fetch("{{url_for('admin.start_test')}}");
-    const body = res.body
-    const result = await readAllChunks(body)
-    resTesting.innerHTML = result;
+    startTraining.disabled = true;
+    document.getElementById("nbGameTrain").disabled = true;
+    document.getElementById("nbGameTest").disabled = true;
+    document.getElementById("stop").classList.toggle("is-hidden", false);
+
+    const nbGame = document.getElementById("nbGameTest").value;
+    updateProgress(0, nbGame);
+    try {
+      const res = await fetch("{{url_for('admin.start_test')}}?n_games=" + nbGame, { signal: controller.signal });
+      const body = res.body;
+      const result = await readAllChunks(body, nbGame);
+      resultDiv.innerHTML = result;
+    } catch (e) {
+      document.getElementById("stop").classList.toggle("is-hidden", true);
+      if (e.name === "AbortError") {
+        bulmaToast.toast({
+          message: "Testing Canceled",
+          type: "is-danger",
+          position: "top-center",
+        });
+      } else {
+        bulmaToast.toast({
+          message: "Unknown Error : " + e.message,
+          type: "is-danger",
+          position: "top-center",
+        });
+      }
+    }
+
+    startTraining.disabled = false;
+    document.getElementById("nbGameTrain").disabled = false;
+    document.getElementById("nbGameTest").disabled = false;
+    document.getElementById("stop").classList.toggle("is-hidden", true);
+  });
+
+  document.getElementById("stop").addEventListener("click", function () {
+    controller.abort();
   });
 
 </script>

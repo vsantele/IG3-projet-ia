@@ -310,7 +310,7 @@ def start_test():
     """
     Start training
     """
-    n_games = request.args.get("n_games", 1000, type=int)
+    n_games = request.args.get("n_games", 100, type=int)
     return current_app.response_class(
         stream_with_context(start_test_ai(n_games=n_games)), mimetype="text/plain"
     )
