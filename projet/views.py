@@ -8,20 +8,29 @@ from flask import (
     render_template,
     request,
     url_for,
+    current_app,
+    stream_with_context,
 )
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from projet.utils import is_email_valid, admin_required, user_is_admin
+from projet.utils import (
+    is_email_valid,
+    admin_required,
+    user_is_admin,
+    state_parsed,
+    all_valid_movements,
+)
 
-from .ai import get_move
+from .ai import get_move, info
 from .exceptions import (
     GameFinishedException,
     InvalidMoveException,
     InvalidPositionException,
 )
-from .models import Game, User, db
-from .utils import move_converted
+from .models import Game, Qtable, User, db
+from .utils import move_converted, state_is_valid
+from .train import start_train_ai, start_test_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -55,6 +64,30 @@ def game_create():
 def display_stat():
     """ """
     return render_template("stat.html")
+
+
+@game_bp.route("/game/hint", methods=["GET"])
+@login_required
+def hint():
+    movements = {"u": "up", "d": "down", "l": "left", "r": "right"}
+    state = request.args.get("state")
+    if state_is_valid(state):
+        q_table_line = Qtable.query.get(state)
+        if q_table_line is not None:
+            board, pos_player1, *_ = state_parsed(state)
+            return jsonify(
+                move=movements[
+                    q_table_line.best(
+                        all_valid_movements(Game.board_to_array(board), 1, pos_player1)
+                    )
+                ]
+            )
+        res = jsonify(message="We can not help you in this case, sorry!")
+        res.status = 500
+        return res
+    res = jsonify(message="Error: State is not valid")
+    res.status = 400
+    return res
 
 
 @game_bp.route("/game/<int:game_id>", methods=["GET", "POST"])
@@ -133,7 +166,9 @@ def game(game_id):
             ],
             winner=current_game.winner,
         )
-
+    AI_info = None
+    if current_app.debug:
+        AI_info = info()
     return render_template(
         "game.html",
         game_state={
@@ -144,8 +179,10 @@ def game(game_id):
                 list(current_game.pos_player_2),
             ],
             "winner": current_game.winner,
+            "is_finished": current_game.is_finished,
         },
         name=current_user.name,
+        AI_info=AI_info,
     )
 
 
@@ -237,26 +274,31 @@ def dashboard():
     """
     Dashboard
     """
-    return render_template("admin/dashboard.html")
+    return render_template("admin/dashboard.html", AI_info=info())
 
 
-@admin_bp.route("/admin/start", methods=["GET"])
+@admin_bp.route("/admin/train/start", methods=["GET"])
 @login_required
 @admin_required
 def start_train():
     """
     Start training
     """
-    # train_ai()
-    return redirect(url_for("admin.dashboard"))
+    n_games = request.args.get("n_games", 1000, type=int)
+
+    return current_app.response_class(
+        stream_with_context(start_train_ai(n_games=n_games)), mimetype="text/plain"
+    )
 
 
-@admin_bp.route("/admin/stop", methods=["GET"])
+@admin_bp.route("/admin/test/start", methods=["GET"])
 @login_required
 @admin_required
-def stop_train():
+def start_test():
     """
     Start training
     """
-    # train_ai()
-    return redirect(url_for("admin.dashboard"))
+    n_games = request.args.get("n_games", 100, type=int)
+    return current_app.response_class(
+        stream_with_context(start_test_ai(n_games=n_games)), mimetype="text/plain"
+    )

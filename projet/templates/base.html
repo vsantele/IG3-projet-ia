@@ -7,22 +7,28 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css" />
+  <script src="https://kit.fontawesome.com/a6cd03cfd2.js" crossorigin="anonymous"></script>
   {% block css %}{% endblock %}
   <title>{% block title %}{% endblock %}</title>
 </head>
 
-<body>
+<body input = $black>
   {{navbar(current_user)}}
-  {% block content %}{% endblock %}
-  <footer class="footer">
+  <div class="container">
+    {% block content %}{% endblock %}
+
+  </div>
+  <footer class="footer is-fixed-bottom">
     <div class="content has-text-centered">
       <p>Game created as part of the Artificial Intelligence Creation Project course in Computer Science at <a
           href="https://henallux.be">Henallux</a></p>
+      <p>By <a target="_blank" href="https://github.com/WolfVic">Victor Santelé</a> and <a target="_blank"
+          href="https://github.com/joachimLejeune">Joachim Lejeune</a></p>
     </div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.1/dist/bulma-toast.min.js"
     integrity="sha256-1aBe6q/4Wh173Ujj/I4uL8w2k5ypeviG1XNs1FfPqKw=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>
+  <!-- <script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script> -->
   {% block js %}{% endblock %}
 </body>
 

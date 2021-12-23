@@ -1,0 +1,41 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5747:5000"
+    volumes:
+      - ./data:/app/data
+    env_file: ./docker.env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mariadb+mariadbconnector://mariadb:mariadb@mariadb:3306/splatai
+    depends_on:
+      - mariadb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  mariadb:
+    image: mariadb
+    hostname: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: maria
+      MYSQL_DATABASE: splatai
+      MYSQL_USER: mariadb
+      MYSQL_PASSWORD: mariadb
+    volumes:
+      - splatai_db_data:/var/lib/mysql
+    expose:
+      - 3306
+
+  adminer:
+    image: adminer
+    hostname: adminer
+    ports:
+      - 5748:8080
+    depends_on:
+      - mariadb
+volumes:
+  splatai_db_data:

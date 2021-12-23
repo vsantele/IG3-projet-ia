@@ -1,57 +1,42 @@
 import random
-from .models import db, Qtable, History, Ai, Game
+from .models import db, Qtable, History, Game
 import logging as lg
 from typing import List, Tuple
 
-from .utils import is_movement_valid, move_converted
-
-"""
-For the Qtable
-a db with each line the state (Si) and the value associated with each direction
-board posPlayer1 posPlayer2 turn (which player is playing) up down left right
-.
-.
-.
-
-"""
+from .utils import move_converted, timer, all_valid_movements, state_parsed, state_str
 
 
-def get_ai() -> Ai:
-    """Get the ai object
+MIN_EPSILON = 0.01
+MAX_EPSILON = 0.99
 
-    Returns:
-        Ai: the ai object
-    """
-    ai = Ai.query.get(1)
-    return ai
+MIN_DISCOUNT_FACTOR = 0.1
+MAX_DISCOUNT_FACTOR = 0.7
+
+epsilon = 0.01
+learning_rate = 0.1
+discount_factor = 0.9
 
 
+@timer
 def get_move(game_state: Game) -> Tuple[int, int]:
-    """From game_state return the best move
+    """From a given game_state return the best move
 
     How epsilon-greedy works:
-        To chose the movement, we need to consider that the Ai will learn during the game
-        but continue to take some random choices.
+        Epsilon is the probability to choose a random action.
+        If the random number is lower than epsilon, the random action is chosen.
+        If the random number is higher than epsilon, the best action is chosen.
 
-        To illustrate that, at the start, we establish that
-        the ai will choose in 90% of the case a random action.
+        In training mode, the epsilon is updated.
+        It starts at 0.99 and decreases to 0.01 at the end of each game
+        via the `update_epsilon` function. it's optimize for batch of 100 000 games.
 
-        It's the explore step.
-        During this step, we change the epsilon only in a % that depend on
-        the epsilon and to provide a little random choice to
-        the Ai we don't down the epsilon under 0.01
-
-        More ai explore, more ai learn, and more she decide to use the exploit step.
-
-        In this case, ai will choose to explore during +/- 100 000 first iterations,
-        then ai switch into the exploit step.
+        In playing mode, the epsilon is set to 0.01. and doesn't change.
 
     Args:
         game_state (Game): the game state
 
     Returns:
-        tuple[int,int]: the selected movement
-
+        Tuple[int,int]: the selected movement
     """
     x, y = pos_player(game_state, game_state.current_player)
 
@@ -65,24 +50,30 @@ def get_move(game_state: Game) -> Tuple[int, int]:
 
         rew = reward(old_state.state, new_state, game_state.current_player)
 
-        update(old_state.movement, q_old_state, q_new_state, rew)
+        update_quality(old_state.movement, q_old_state, q_new_state, rew)
 
+    # 2. choose the step between explore or exploit
     # explore step
-    if random.uniform(0, 1) < eps():
-        lg.debug("Explore")
+    if random.uniform(0, 1) < epsilon:
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
-        # very slowly down of the epsilon
-        if eps() > 0.001 and random.uniform(0, 1) < (1 - eps()) ** 2:
-            get_ai().epsilon = eps() * 0.9999
     # exploit step
     else:
-        lg.debug("Exploit")
         valid_movements = all_valid_movements(
             game_state.board_array, game_state.current_player, (x, y)
         )
-        movement = q_new_state.best(valid_movements)
+        try:
+            movement = q_new_state.best(valid_movements)
+        except IndexError:
+            # if there is no valid movement, we choose a random one
+            # It's a security to always return a movement
+            lg.error("No valid movements")
+            movement = random_action(
+                game_state.board_array, (x, y), game_state.current_player
+            )
+    # return move_converted(movement)
+    # movement = q_new_state.best(valid_movements)
 
     # 3. update in the history table the new state
     if old_state is None:
@@ -101,8 +92,33 @@ def get_move(game_state: Game) -> Tuple[int, int]:
     return move_converted(movement)
 
 
+def update_game_finished(game_state, player):
+    """Update the QTable when the game is finished
+    It's the same mechanism than the update in game
+    but force the last state to be be updated.
+
+    Args:
+        game_state (Game): the game state
+    """
+    new_state = state_str(game_state)
+    old_state = previous_state(game_state.id, player)
+
+    q_new_state = q_state(new_state)
+
+    if old_state is not None:
+        q_old_state = q_state(old_state.state)
+        rew = reward(
+            old_state.state,
+            new_state,
+            game_state.current_player,
+            winner=game_state.winner,
+        )
+
+        update_quality(old_state.movement, q_old_state, q_new_state, rew)
+
+
 def random_action(
-    board: List[List[int]], pos_player: Tuple[int, int], player: int = 2
+    board: List[List[int]], pos_cur_player: Tuple[int, int], player: int = 2
 ) -> str:
     """Choose a valid random action.
 
@@ -114,19 +130,12 @@ def random_action(
     Returns:
         str: a direction between ['u', 'd', 'l', 'r']
     """
-    choices = []
-    if is_movement_valid(board, player, pos_player, (0, 1)):
-        choices.append("d")
-    if is_movement_valid(board, player, pos_player, (0, -1)):
-        choices.append("u")
-    if is_movement_valid(board, player, pos_player, (1, 0)):
-        choices.append("r")
-    if is_movement_valid(board, player, pos_player, (-1, 0)):
-        choices.append("l")
-    return random.choice(choices)
+    return random.choice(all_valid_movements(board, player, pos_cur_player))
 
 
-def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float):
+def update_quality(
+    action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: float
+):
     """Update the previous Q[s,a] with the reward and the new Q[s,a]
 
     Args:
@@ -135,52 +144,49 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward: float)
         q_new_state (Qtable): The new Q[s,a]
         reward (float): the reward from the previous action
     """
-    alpha = learning_rate()
-    gamma = discount_factor()
+    alpha = learning_rate
+    gamma = discount_factor
 
-    reward = q_old_state.get_reward(action) + alpha * (
-        reward + gamma * q_new_state.max() - q_old_state.get_reward(action)
+    quality = q_old_state.get_quality(action) + alpha * (
+        reward_value + gamma * q_new_state.max() - q_old_state.get_quality(action)
     )
-    q_old_state.set_reward(action, reward)
+    q_old_state.set_quality(action, quality)
 
 
-def eps():
-    """Return the espilon from ai object
+def update_epsilon():
+    """Update the global epsilon variable
 
-    Returns:
-        float: the current espilon
+    With this formula, the epsilon is high for about 80 000 games
+    then drop to 0.1 for the next 20 000 games.
     """
-    return get_ai().epsilon
+    global epsilon
+    if epsilon > 0.01 and random.uniform(0, 1) < 10 * (1 - epsilon) ** 2:
+        epsilon = epsilon * 0.9999
 
 
-def learning_rate():
-    """Return the learning_fact from ai object
+def update_discount_factor():
+    """Update the discount_factor from global variable
 
-    Returns:
-        float: the current learning_rate
+    Discount factor:
+        - 0 = short-sighted
+        - 1 = long-sighted
+
+    With this formula, the dicsount factor needs about 25 000 games
+    to reach his max value.
+
     """
-    return get_ai().learning_rate
+    global discount_factor
+    if discount_factor < MAX_DISCOUNT_FACTOR:
+        discount_factor *= 1.0001
 
 
-def discount_factor():
-    """Determine the discount_factor
-
-    0 = short-sighted
-    1 = long-sighted
-
-    Returns:
-        float: the discount_factor
-    """
-    return get_ai().discount_factor
-
-
-def reward(old_state: str, new_state: str, player: int):
+def reward(old_state: str, new_state: str, player: int, winner: int = 0) -> float:
     """Calculate the reward based on the evolution of the board
 
     How it works:
-
-    1 case took by the player = +1 point.
-    1 case took by the other player = -0.5 point
+        - 1 case took by the player = +1 point.
+        - 1 case took by the other player = -0.5 point
+        - if win = +10 points
 
     Args:
         old_state (str): the old state
@@ -190,19 +196,21 @@ def reward(old_state: str, new_state: str, player: int):
     Returns:
         reward: the reward of the previous action
     """
-    old_board, _, _, _ = state_parsed(old_state)
-    new_board, _, _, _ = state_parsed(new_state)
+    old_board, *_ = state_parsed(old_state)
+    new_board, *_ = state_parsed(new_state)
 
-    reward = 0
+    points = 0
 
     old_nb_case_player = old_board.count(str(player))
     new_nb_case_player = new_board.count(str(player))
     old_nb_case_other = old_board.count(str(other_player(player)))
     new_nb_case_other = new_board.count(str(other_player(player)))
 
-    reward += new_nb_case_player - old_nb_case_player
-    reward -= (new_nb_case_other - old_nb_case_other) * 0.5
-    return reward
+    if winner == player:
+        points += 10
+    points += new_nb_case_player - old_nb_case_player
+    points -= (new_nb_case_other - old_nb_case_other) * 0.5
+    return points
 
 
 def previous_state(game_id: int, current_player: int):
@@ -219,29 +227,6 @@ def previous_state(game_id: int, current_player: int):
     return previous
 
 
-def state_parsed(state: str) -> Tuple[str, int, int, int]:
-    """Retreive state information from the string
-
-    Args:
-        state (string): state concat in string
-
-    Returns:
-        str: board: the board in string
-        int: pos_player_1: the position of player 1 in a tuple
-        int: pos_player_2: the position of player 2 in a tuple
-        int: turn: the player who has to play.
-    """
-    board = state[:25]
-    p1_x = int(state[25])
-    p1_y = int(state[26])
-    p2_x = int(state[27])
-    p2_y = int(state[28])
-    pos_player1 = p1_x, p1_y
-    pos_player2 = p2_x, p2_y
-    turn = int(state[29])
-    return board, pos_player1, pos_player2, turn
-
-
 def other_player(player: int) -> int:
     """Get the other player number
 
@@ -251,9 +236,7 @@ def other_player(player: int) -> int:
     Returns:
         int: the other player number
     """
-    if player == 1:
-        return 2
-    return 1
+    return 2 if player == 1 else 1
 
 
 def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
@@ -268,29 +251,6 @@ def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
     if player == 1:
         return game_state.pos_player_1
     return game_state.pos_player_2
-
-
-def state_str(game_state: Game) -> str:
-    """Convert game state to string state
-
-    Args:
-        game_state (Game): the game object from db
-
-    Returns:
-        str: the converted string state
-    """
-    board = game_state.board
-    pos_player_1 = game_state.pos_player_1
-    pos_player_2 = game_state.pos_player_2
-    turn = game_state.current_player
-    return (
-        board
-        + str(pos_player_1[0])
-        + str(pos_player_1[1])
-        + str(pos_player_2[0])
-        + str(pos_player_2[1])
-        + str(turn)
-    )
 
 
 def q_state(state: str) -> Qtable:
@@ -311,26 +271,47 @@ def q_state(state: str) -> Qtable:
     return q
 
 
-def all_valid_movements(
-    board: List[List[int]], player: int, pos: Tuple[int, int]
-) -> List[str]:
-    """Return all valid movements for a player
+def info():
+    """Return the current state of the learning"""
+    return (
+        "Eps: "
+        + str(epsilon)
+        + " | "
+        + "LR: "
+        + str(learning_rate)
+        + " | "
+        + "DF: "
+        + str(discount_factor)
+    )
+
+
+def set_parameters(mode: str):
+    """Set the value of the pamaeters according to the mode
 
     Args:
-        board (List[List[int]]): the board
+        mode (str): the mode of the app (train or play)
+    """
+    global epsilon, learning_rate, discount_factor
+    if mode == "train":
+        epsilon = MAX_EPSILON
+        learning_rate = 0.1
+        discount_factor = MIN_DISCOUNT_FACTOR
+    else:
+        epsilon = MIN_EPSILON
+        learning_rate = 0.1
+        discount_factor = MAX_DISCOUNT_FACTOR
+
+
+def get_move_random(game_state: Game, player: int) -> Tuple[int, int]:
+    """Return a random movement
+
+    Args:
+        game_state (Game): the current state of the game
         player (int): the player number
-        pos (tuple(int,int)): the position of the player
 
     Returns:
-        List[str]: All valid movements
+        Tuple[int, int]: a random movement
     """
-    movements = []
-    if is_movement_valid(board, player, pos, (0, 1)):
-        movements += ["d"]
-    if is_movement_valid(board, player, pos, (0, -1)):
-        movements += ["u"]
-    if is_movement_valid(board, player, pos, (1, 0)):
-        movements += ["r"]
-    if is_movement_valid(board, player, pos, (-1, 0)):
-        movements += ["l"]
-    return movements
+    return move_converted(
+        random_action(game_state.board_array, pos_player(game_state, player), player)
+    )

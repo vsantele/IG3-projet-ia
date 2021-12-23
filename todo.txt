@@ -1,0 +1,7 @@
+HIGH:
+  - Fix admin dashboard stop button
+MEDIUM:
+  - check if "remember me" works
+  - Admin: Better view results
+LOW:
+  - improve style

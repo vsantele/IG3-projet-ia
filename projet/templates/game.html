@@ -6,20 +6,54 @@
 {% endblock %}
 {%block content %}
 <div>
-  <h1 class="title">{%block title %} Game #{{ game_state.game_id }}{%endblock %}</h1>
-  {{board(5)}}
+  <h1 class="title is-1">{%block title %} Game #{{ game_state.game_id }}{%endblock %}</h1>
+  <h2 id="winner-subtitle" class="subtitle is-3">
+    {% if game_state.winner == 1%}
+    You won !
+    {% elif game_state.winner == 2 %}
+    You loose !
+    {% endif %}
+  </h2>
+  <h2 class="subtitle is-3"></h2>
+  <div class="columns">
+    <div class="column is-narrow">{{board(5)}}</div>
+    {% if AI_info %}
+    <div class=" column">
+      <h2>Spec</h2>
+      <p>{{AI_info}}</p>
+    </div>
+    {% endif %}
+  </div>
 </div>
+<div>
+  <button class="button is-primary is-large" id="hint" onclick=send_help()>Hint</button>
+</div>
+ <!-- TODO arriver à mettre le meilleur prochain coup au joueur -->
 <!-- modal -->
 <div class="modal" id="winner-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
     <div class="box">
-      <p>The player <span id="winner"></span> has won with <span id="winner-cells"></span> out of <span
-          id="board-size"></span> cells</p>
+      <p><span id="winner"></span> With <span id="player-cells"></span> out of <span id="board-size"></span> cells</p>
       <p>
-        <a class="button is-success" id="goHome" href="/">Go to Home</a>
-        <a class="button is-success" id="restart" href="/game">New Game</a>
-        <button class="button" id="view-board">Show Board</button>
+        <a class="button is-success" id="goHome" href="/">
+          <span class="icon-tet">
+            <span class="icon"><i class="fas fa-home"></i></span>
+            <span>Go To Home</span>
+          </span>
+        </a>
+        <a class="button is-success" id="restart" href="/game">
+          <span class="icon-tet">
+            <span class="icon"><i class="fas fa-redo"></i></span>
+            <span>New Game</span>
+          </span>
+        </a>
+        <button class="button" id="view-board">
+          <span class="icon-tet">
+            <span class="icon"><i class="fas fa-border-all"></i></span>
+            <span>Show Board</span>
+          </span>
+        </button>
       </p>
     </div>
   </div>

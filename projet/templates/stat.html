@@ -3,17 +3,51 @@
 {% block css %}
 {% endblock %}
 {%block content %}
-<div class="notification">
-  <div class="content">
-    <ol type="1">
-      <li>Total Game Played : {{current_user.nb_game_played}}</li>
-      <li>Total Victory : {{current_user.nb_game_win}}</li>
-      <li>Total Lose : {{current_user.nb_game_played - current_user.nb_game_win}}</li>
-    </ol>
-
+<div class="level">
+  <div class="level-item has-text-centered">
+    <div>
+      <p class="heading">Total Game Played</p>
+      <p class="title">{{current_user.nb_game_played}}</p>
+    </div>
   </div>
-  <button class="delete">Delete</button>
+  <div class="level-item has-text-centered">
+    <div>
+      <p class="heading">Total Victory</p>
+      <p class="title">{{current_user.nb_game_win}}</p>
+    </div>
+  </div>
+  <div class="level-item has-text-centered">
+    <div>
+      <p class="heading">Total Lose</p>
+      <p class="title">{{current_user.nb_game_played - current_user.nb_game_win}}</p>
+    </div>
+  </div>
 </div>
+<section class="section">
+  <div class="columns is-centered">
+    <div class="column is-narrow">
+      <h2 class="title is-3">Games not finished</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Game Date</th>
+            <th>Go Play</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for game in current_user.games if not game.is_finished %}
+          <tr>
+            <th>{{loop.index}}.</th>
+            <td>{{game.datetime}}</td>
+            <td><a class="button is-primary" href='{{url_for("game.game", game_id=game.id)}}'>Go to game</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 {% endblock %}
 {% block js %}
 <script>

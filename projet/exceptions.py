@@ -1,12 +1,6 @@
-class Error(Exception):
-    """Base class for exception"""
-
-    pass
-
-
 class InvalidPositionException(Exception):
     """Exception raised by an invalid move
-    Attirbutes :
+    Attributes:
         x (int): x position of the player
         y (int): y position of the player
     """
@@ -21,7 +15,7 @@ class InvalidPositionException(Exception):
 
 class InvalidPlayerException(Exception):
     """Exception raised by an invalid player
-    Attirbutes :
+    Attributes:
         player (int): the invalid player numbers
     """
 
@@ -41,7 +35,7 @@ class GameFinishedException(Exception):
 
 class InvalidMoveException(Exception):
     """Exception raised by an invalid move
-    Attirbutes :
+    Attributes:
         x (int): the x coordinate of the move
         y (int): the y coordinate of the move
     """
@@ -56,7 +50,7 @@ class InvalidMoveException(Exception):
 
 class InvalidActionException(Exception):
     """Exception raised by an invalid action
-    Attirbutes :
+    Attributes:
         action (str): the invalid action
     """
 
