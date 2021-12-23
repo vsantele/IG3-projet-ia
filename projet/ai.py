@@ -19,7 +19,7 @@ MIN_EPSILON = 0.01
 MAX_EPSILON = 0.99
 
 MIN_DISCOUNT_FACTOR = 0.1
-MAX_DISCOUNT_FACTOR = 0.8
+MAX_DISCOUNT_FACTOR = 0.7
 
 epsilon = 0.01
 learning_rate = 0.1
@@ -170,7 +170,7 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: 
 def update_epsilon():
     """Update the global epsilon variable"""
     global epsilon
-    if epsilon > 0.01 and random.uniform(0, 1) < (1 - epsilon) ** 2:
+    if epsilon > 0.01 and random.uniform(0, 1) < 10 * (1 - epsilon) ** 2:
         epsilon = epsilon * 0.9999
 
 
