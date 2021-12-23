@@ -2,7 +2,7 @@ version = 1
 
 test_patterns = ["tests/*"]
 
-exclude_patterns = ["projet/templates/*.html"]
+exclude_patterns = ["projet/templates/*.html", "docs/*"]
 
 [[analyzers]]
 name = "javascript"
