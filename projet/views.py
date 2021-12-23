@@ -30,7 +30,7 @@ from .exceptions import (
 )
 from .models import Game, Qtable, User, db
 from .utils import move_converted, state_is_valid
-from .train import start_train_ai, stop_train_ai, start_test_ai
+from .train import start_train_ai, start_test_ai
 
 game_bp = Blueprint("game", __name__)
 auth_bp = Blueprint("auth", __name__)
@@ -289,18 +289,6 @@ def start_train():
     return current_app.response_class(
         stream_with_context(start_train_ai(n_games=n_games)), mimetype="text/plain"
     )
-
-
-@admin_bp.route("/admin/train/stop", methods=["GET"])
-@login_required
-@admin_required
-def stop_train():
-    """
-    Start training
-    """
-    stop_train_ai()
-    flash("Training stopped")
-    return redirect(url_for("admin.dashboard"))
 
 
 @admin_bp.route("/admin/test/start", methods=["GET"])

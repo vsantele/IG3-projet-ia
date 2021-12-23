@@ -15,6 +15,18 @@ from .utils import beautify_board
 
 
 def train_ai(n_games=1000):
+    """Launch a training session for the AI
+
+    Args:
+        n_games (int, optional): the number of game to train the AI.
+            Defaults to 1000.
+
+    Returns:
+        str: Finished string
+
+    Yields:
+        string: information about the finised game
+    """
     yield f"Starting training for {n_games} games..."
     for x in range(0, n_games):
         game = Game()
@@ -45,15 +57,32 @@ def train_ai(n_games=1000):
 
 
 def start_train_ai(n_games=1000):
+    """Start a training session for the AI and set the parameters to train mode
+
+    Args:
+        n_games (int, optional): The number of game to train the AI.
+            Defaults to 1000.
+
+    Returns:
+        Generator: The generator returns by `train_ai`
+    """
     set_parameters("train")
     return train_ai(n_games)
 
 
-def stop_train_ai():
-    pass
-
-
 def test_ai(n_games=100):
+    """Launch a test session for the AI
+
+    Args:
+        n_games (int, optional): The number of game to test the AI.
+            Defaults to 100.
+
+    Returns:
+        str: final stat string
+
+    Yields:
+        string: the number of the game just finished
+    """
     n_games_won = 0
     for x in range(n_games):
         game = Game()
@@ -76,5 +105,14 @@ def test_ai(n_games=100):
 
 
 def start_test_ai(n_games=100):
+    """Start a test session for the AI and set the parameters to test mode
+
+    Args:
+        n_games (int, optional): The number of game to test the AI.
+            Defaults to 100.
+
+    Returns:
+        Generator: The generator returns by `test_ai`
+    """
     set_parameters("play")
     return test_ai(n_games)

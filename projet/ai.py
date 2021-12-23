@@ -5,15 +5,6 @@ from typing import List, Tuple
 
 from .utils import move_converted, timer, all_valid_movements, state_parsed, state_str
 
-"""
-For the Qtable
-a db with each line the state (Si) and the value associated with each direction
-board posPlayer1 posPlayer2 turn (which player is playing) up down left right
-.
-.
-.
-
-"""
 
 MIN_EPSILON = 0.01
 MAX_EPSILON = 0.99
@@ -28,31 +19,24 @@ discount_factor = 0.9
 
 @timer
 def get_move(game_state: Game) -> Tuple[int, int]:
-    """From game_state return the best move
+    """From a given game_state return the best move
 
     How epsilon-greedy works:
-        To chose the movement, we need to consider that the Ai will learn during the game
-        but continue to take some random choices.
+        Epsilon is the probability to choose a random action.
+        If the random number is lower than epsilon, the random action is chosen.
+        If the random number is higher than epsilon, the best action is chosen.
 
-        To illustrate that, at the start, we establish that
-        the ai will choose in 90% of the case a random action.
+        In training mode, the epsilon is updated.
+        It starts at 0.99 and decreases to 0.01 at the end of each game
+        via the `update_epsilon` function. it's optimize for batch of 100 000 games.
 
-        It's the explore step.
-        During this step, we change the epsilon only in a % that depend on
-        the epsilon and to provide a little random choice to
-        the Ai we don't down the epsilon under 0.01
-
-        More ai explore, more ai learn, and more she decide to use the exploit step.
-
-        In this case, ai will choose to explore during +/- 100 000 first iterations,
-        then ai switch into the exploit step.
+        In playing mode, the epsilon is set to 0.01. and doesn't change.
 
     Args:
         game_state (Game): the game state
 
     Returns:
-        tuple[int,int]: the selected movement
-
+        Tuple[int,int]: the selected movement
     """
     x, y = pos_player(game_state, game_state.current_player)
 
@@ -66,18 +50,16 @@ def get_move(game_state: Game) -> Tuple[int, int]:
 
         rew = reward(old_state.state, new_state, game_state.current_player)
 
-        update(old_state.movement, q_old_state, q_new_state, rew)
+        update_quality(old_state.movement, q_old_state, q_new_state, rew)
 
     # 2. choose the step between explore or exploit
     # explore step
     if random.uniform(0, 1) < epsilon:
-        # lg.debug("Explore")
         movement = random_action(
             game_state.board_array, (x, y), game_state.current_player
         )
     # exploit step
     else:
-        # lg.debug("Exploit")
         valid_movements = all_valid_movements(
             game_state.board_array, game_state.current_player, (x, y)
         )
@@ -112,6 +94,8 @@ def get_move(game_state: Game) -> Tuple[int, int]:
 
 def update_game_finished(game_state, player):
     """Update the QTable when the game is finished
+    It's the same mechanism than the update in game
+    but force the last state to be be updated.
 
     Args:
         game_state (Game): the game state
@@ -130,7 +114,7 @@ def update_game_finished(game_state, player):
             winner=game_state.winner,
         )
 
-        update(old_state.movement, q_old_state, q_new_state, rew)
+        update_quality(old_state.movement, q_old_state, q_new_state, rew)
 
 
 def random_action(
@@ -149,7 +133,9 @@ def random_action(
     return random.choice(all_valid_movements(board, player, pos_cur_player))
 
 
-def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: float):
+def update_quality(
+    action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: float
+):
     """Update the previous Q[s,a] with the reward and the new Q[s,a]
 
     Args:
@@ -168,20 +154,26 @@ def update(action: str, q_old_state: Qtable, q_new_state: Qtable, reward_value: 
 
 
 def update_epsilon():
-    """Update the global epsilon variable"""
+    """Update the global epsilon variable
+
+    With this formula, the epsilon is high for about 80 000 games
+    then drop to 0.1 for the next 20 000 games.
+    """
     global epsilon
     if epsilon > 0.01 and random.uniform(0, 1) < 10 * (1 - epsilon) ** 2:
         epsilon = epsilon * 0.9999
 
 
 def update_discount_factor():
-    """Return the discount_factor from global variable
+    """Update the discount_factor from global variable
 
-    0 = short-sighted
-    1 = long-sighted
+    Discount factor:
+        - 0 = short-sighted
+        - 1 = long-sighted
 
-    Returns:
-        float: the updated discount_factor
+    With this formula, the dicsount factor needs about 25 000 games
+    to reach his max value.
+
     """
     global discount_factor
     if discount_factor < MAX_DISCOUNT_FACTOR:
@@ -244,9 +236,7 @@ def other_player(player: int) -> int:
     Returns:
         int: the other player number
     """
-    if player == 1:
-        return 2
-    return 1
+    return 2 if player == 1 else 1
 
 
 def pos_player(game_state: Game, player: int) -> Tuple[int, int]:
@@ -282,6 +272,7 @@ def q_state(state: str) -> Qtable:
 
 
 def info():
+    """Return the current state of the learning"""
     return (
         "Eps: "
         + str(epsilon)
@@ -295,6 +286,11 @@ def info():
 
 
 def set_parameters(mode: str):
+    """Set the value of the pamaeters according to the mode
+
+    Args:
+        mode (str): the mode of the app (train or play)
+    """
     global epsilon, learning_rate, discount_factor
     if mode == "train":
         epsilon = MAX_EPSILON

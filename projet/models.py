@@ -48,23 +48,36 @@ class User(UserMixin, db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
+    """Auto-incrementing primary key"""
     email = db.Column(db.String(100), nullable=False, unique=True)
+    """email of the user"""
     name = db.Column(db.String(40), nullable=False)
+    """name of the user"""
     password = db.Column(db.String(256), nullable=False)
+    """hashed password of the user"""
     is_human = db.Column(db.Boolean, nullable=False, default=True)
+    """True if user is human, False if user is a bot"""
 
     games = db.relationship("Game", backref="game", lazy=True)
+    """Games played by the user. Read only"""
 
     @property
     def is_admin(self):
+        """True if user is admin, False otherwise.
+        To add admin user: add his email in ADMIN_USERS env variable
+
+        Read only
+        """
         return self.email in current_app.config["ADMIN_USERS"]
 
     @property
     def nb_game_played(self):
+        """The number of game played by the user. Read only"""
         return len(self.games)
 
     @property
     def nb_game_win(self):
+        """The number of game won by the user. Read only"""
         return len(list(filter(lambda x: x.is_finished and x.winner == 1, self.games)))
 
 
@@ -86,14 +99,18 @@ class Game(db.Model):
     """
 
     size = 5
+    """Size of the board"""
     id = db.Column(db.Integer, primary_key=True)
+    """Auto-incrementing primary key"""
     datetime = db.Column(db.Date, nullable=False, default=date.today())
+    """Creation date of the game"""
 
-    # TODO: check how foreign_keys works with sqlalchemy
     user_id_1 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    """User 1's id"""
     # user_id_2 = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     vs_ai = db.Column(db.Boolean, default=True)
+    """True if user 2 is an AI, False otherwise"""
 
     # TODO: Check syntax
     # user_1 = db.relationship("User", foreign_keys=[user_id_1], backref="user_1")
@@ -102,10 +119,15 @@ class Game(db.Model):
     board = db.Column(
         db.String(256), nullable=False, default="1000000000000000000000002"
     )
+    """Board's state in string format. 0 = empty, 1 = player 1, 2 = player 2`"""
     pos_player_1_x = db.Column(db.Integer, nullable=False, default=0)
+    """X position of player 1"""
     pos_player_1_y = db.Column(db.Integer, nullable=False, default=0)
+    """Y position of player 1"""
     pos_player_2_x = db.Column(db.Integer, nullable=False, default=4)
+    """X position of player 2"""
     pos_player_2_y = db.Column(db.Integer, nullable=False, default=4)
+    """Y position of player 2"""
 
     current_player = db.Column(
         db.Integer,
@@ -113,6 +135,7 @@ class Game(db.Model):
         nullable=False,
         default=1,
     )
+    """Number of the player who's turn it is"""
 
     @classmethod
     def board_to_array(cls, board):
@@ -130,12 +153,10 @@ class Game(db.Model):
     @property
     def board_array(self):
         """Convert board to double array"""
-        return [
-            [int(self.board[x * self.size + y]) for y in range(0, self.size)]
-            for x in range(0, self.size)
-        ]
+        return self.board_to_array(self.board)
 
     def _update_board(self, x, y, value):
+        """Update board with a color at a position"""
         pos = y * 5 + x
         self.board = self.board[:pos] + str(value) + self.board[pos + 1 :]
 
@@ -163,12 +184,20 @@ class Game(db.Model):
 
     @property
     def pos_player_1(self):
-        """Return the player 1 's position"""
+        """Return the player 1 's position
+
+        Returns:
+            tuple: (x, y)
+        """
         return self.pos_player_1_x, self.pos_player_1_y
 
     @pos_player_1.setter
     def pos_player_1(self, pos):
-        """Set the player 1 's position"""
+        """Set the player 1 's position
+
+        Args:
+            pos (tuple): (x, y)
+        """
         x, y = pos
         if (
             (x < 0 or x >= self.size)
@@ -181,12 +210,20 @@ class Game(db.Model):
 
     @property
     def pos_player_2(self):
-        """Return the player 2 's position"""
+        """Return the player 2 's position
+
+        Returns:
+            tuple: (x, y)
+        """
         return self.pos_player_2_x, self.pos_player_2_y
 
     @pos_player_2.setter
     def pos_player_2(self, pos):
-        """Set the player 2 's position"""
+        """Set the player 2 's position
+
+        Args:
+            pos (tuple): (x, y)
+        """
         x, y = pos
         if (
             (x < 0 or x >= self.size)
@@ -226,53 +263,44 @@ class Game(db.Model):
         self.board = self.board_to_string(fill_paddock(self.board_array, self.size))
         db.session.commit()
 
-    # def update_board(self, player, pos):
-    #     """Update the board with the player's move
-
-    #     Args:
-    #         player (int): Number of the player who's turn it is
-    #         pos (tuple): (x, y) of the player
-    #     """
-    #     if player not in (1, 2):
-    #         raise InvalidPlayerException(player)
-    #     if any(x not in (0, 1, -1) for x in pos):
-    #         raise InvalidMoveException(pos[0], pos[1])
-
-    #     if player == 1:
-    #         self._update_board(self.board, pos, 1)
-    #     else:
-    #         self._update_board(self.board, pos, 2)
-
 
 class Qtable(db.Model):
     """
     Qtable model
 
-    Args :
+    Args:
         state (str): this is the state of the current game, contain:
             board(25), pos_player_1(2), pos_player_2(2), and turn(1)
             => 30 caracters => "100000000000000000000000200441" for ex
-        up (int): value of the reward for this direction at T time
-        down (int): value of the reward for this direction at T time
-        left (int): value of the reward for this direction at T time
-        right (int): value of the reward for this direction at T time
+        up (int): value of the quality for this direction at this state
+        down (int): value of the quality for this direction at this state
+        left (int): value of the quality for this direction at this state
+        right (int): value of the quality for this direction at this state
     """
 
     state = db.Column(db.String(30), primary_key=True)
+    """State of the current game in a string"""
     up = db.Column(db.Float, nullable=False, default=0)
+    """Value of the quality for up direction at this state"""
     down = db.Column(db.Float, nullable=False, default=0)
+    """Value of the quality for down direction at this state"""
     left = db.Column(db.Float, nullable=False, default=0)
+    """Value of the quality for left direction at this state"""
     right = db.Column(db.Float, nullable=False, default=0)
+    """Value of the quality for right direction at this state"""
 
     def get_quality(self, action):
         """
-        Return the reward of the action
+        Return the quality of the action
 
         Args:
-            action (str): the action to get the reward
+            action (str): the action to get the quality
+
+        Raises:
+            InvalidActionException: if the action is not valid (up, down, left, right)
 
         Returns:
-            int: the reward of the action
+            int: the quality of the action
         """
         if action in ("u", "up"):
             return self.up
@@ -291,6 +319,9 @@ class Qtable(db.Model):
         Args:
             action (str): the action to set the reward
             reward (float): the reward to set
+
+        Raises:
+            InvalidActionException: if the action is not valid (up, down, left, right)
         """
         if action in ("u", "up"):
             self.up = reward
@@ -306,14 +337,14 @@ class Qtable(db.Model):
     def max(self, valid_movements=None):
         """
         Return the max reward for the given valid moves.
-        If no valid moves are given, return the max reward for all the actions.
+        If no valid moves are given, return the max quality for all the actions.
 
         Args:
             valid_movements (list): list of valid movements.
                 Default is ["u", "d", "l", "r"]
 
         Returns:
-            float: the max reward of the action
+            float: the max quality of the action
         """
         if valid_movements is None:
             valid_movements = ["u", "d", "l", "r"]
@@ -349,13 +380,18 @@ class Qtable(db.Model):
 
 
 class History(db.Model):
+    """Save last state for a gameId and player. Used for the AI"""
 
     game_id = db.Column(db.Integer, nullable=False)
+    """Id of the game"""
     current_player = db.Column(db.Integer, nullable=False)
+    """Number of the player who's turn it is"""
     state = db.Column(db.String(30), nullable=False)
+    """State of the current game in a string"""
     movement = db.Column(
         db.String(1),
         db.CheckConstraint(r"movement IN ('u','d','l','r')"),
         nullable=False,
-    )  # movement  = 'u' 'd' 'l' 'r'
+    )
+    """Movement of the player (u, d, l, r)"""
     db.PrimaryKeyConstraint(game_id, current_player, name="history_pk")
