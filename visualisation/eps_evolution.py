@@ -12,11 +12,11 @@ diminution = 0
 explore = 0
 factor = 2
 
-for i in range(1000000):
+for i in range(100000):
     if random.uniform(0, 1) < eps:  # explore
         # diminution très lente du espilon
         explore += 1
-    if eps > 0.001 and random.uniform(0, 1) < (1 - eps) ** factor:
+    if eps > 0.001 and random.uniform(0, 1) < 10 * (1 - eps) ** factor:
         diminution += 1
         eps *= 0.9999
     if i % 100 == 0:
