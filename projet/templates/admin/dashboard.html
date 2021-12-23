@@ -4,16 +4,28 @@
     <button class="button is-primary is-large mb-2" id="startTraining">
       Start training
     </button>
-    <div style="width: 15em;">
-      <input id="nbGameTrain" class="input is-large" type="number" value="1000" placeholder="Number of game">
+    <div style="width: 15em">
+      <input
+        id="nbGameTrain"
+        class="input is-large"
+        type="number"
+        value="1000"
+        placeholder="Number of game"
+      />
     </div>
   </div>
   <div class="column is-one-fifth">
     <button class="button is-primary is-large mb-2" id="startTesting">
       Start testing
     </button>
-    <div style="width: 15em;">
-      <input id="nbGameTest" class="input is-large" type="number" value="100" placeholder="Number of game">
+    <div style="width: 15em">
+      <input
+        id="nbGameTest"
+        class="input is-large"
+        type="number"
+        value="100"
+        placeholder="Number of game"
+      />
     </div>
   </div>
   <div class="column is-one-fifth">
@@ -21,21 +33,25 @@
   </div>
 </div>
 <p class="mt-3">
-  <progress id="testProgress" class="progress is-success" value="0" max="100"></progress>
+  <progress
+    id="testProgress"
+    class="progress is-success"
+    value="0"
+    max="100"
+  ></progress>
 </p>
 <p id="result"></p>
 
 <p>{{AI_info}}</p>
-{% endblock %}
-{% block js %}
+{% endblock %} {% block js %}
 <script>
   const controller = new AbortController();
-  const testProgress = document.getElementById('testProgress');
+  const testProgress = document.getElementById("testProgress");
   const n_games_test = 10;
   async function readAllChunks(readableStream, nbGame) {
     const reader = readableStream.getReader();
     let line;
-    let n_receives = 0
+    let n_receives = 0;
     let done, value;
     while (!done) {
       ({ value, done } = await reader.read());
@@ -45,12 +61,11 @@
       line = value;
       n_receives++;
       updateProgress(n_receives, nbGame);
-
     }
   }
 
   function updateProgress(n_receives, n_games_test) {
-    const progress = n_receives / n_games_test * 100;
+    const progress = (n_receives / n_games_test) * 100;
     testProgress.value = progress;
   }
   const startTesting = document.getElementById("startTesting");
@@ -64,7 +79,10 @@
     const nbGame = document.getElementById("nbGameTrain").value;
     updateProgress(0, nbGame);
     try {
-      const res = await fetch("{{url_for('admin.start_train')}}?n_games=" + nbGame, { signal: controller.signal });
+      const res = await fetch(
+        "{{url_for('admin.start_train')}}?n_games=" + nbGame,
+        { signal: controller.signal }
+      );
       const body = res.body;
       const result = await readAllChunks(body, nbGame);
       resultDiv.innerHTML = result;
@@ -103,7 +121,10 @@
     const nbGame = document.getElementById("nbGameTest").value;
     updateProgress(0, nbGame);
     try {
-      const res = await fetch("{{url_for('admin.start_test')}}?n_games=" + nbGame, { signal: controller.signal });
+      const res = await fetch(
+        "{{url_for('admin.start_test')}}?n_games=" + nbGame,
+        { signal: controller.signal }
+      );
       const body = res.body;
       const result = await readAllChunks(body, nbGame);
       resultDiv.innerHTML = result;
@@ -133,6 +154,5 @@
   document.getElementById("stop").addEventListener("click", function () {
     controller.abort();
   });
-
 </script>
 {% endblock %}
