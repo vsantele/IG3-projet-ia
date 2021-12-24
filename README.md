@@ -2,6 +2,10 @@
 
 Projet IA Henallux Bloc 3 Option Data Science
 
+# Documentation
+
+The generated documentation is available [`here`](https://wolfvic.github.io/IG3-projet-ia/projet.html)
+
 # Setup
 
 ## Setup dotenv file
