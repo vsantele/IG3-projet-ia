@@ -79,3 +79,16 @@ Default = `False`
 The list separate by `;` of all users's email addresses who are admins.
 
 Example: `"test@test.be;hello@world.com"`
+
+# How to generate docs
+
+Run `pdoc -d google -o docs projet`
+
+# How to run in production
+
+Use Docker: `docker-compose up -d`.
+
+The app will run on port 5747.
+
+It will use a mariadb container to store the database.
+You can access manage database on web with adminer on port 5748.

@@ -81,6 +81,6 @@ def cmd_init_db(reset):
 @app.cli.command("train_ai")
 @click.argument("nb_games", type=int, default=1000)
 def cmd_start_train_ai(nb_games):
-    """Command to start a training of the Aik"""
+    """Command to start a training of the Ai"""
     for _ in start_train_ai(nb_games):
         pass
