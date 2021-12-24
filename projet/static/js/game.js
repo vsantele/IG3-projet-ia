@@ -47,36 +47,6 @@ function setBoard() {
   });
 }
 
-// function setClickable() {
-//   const x = window.players[0][0];
-//   const y = window.players[0][1];
-
-//   if (x > 0 && window.board[y][x - 1] !== 2) {
-//     const selectedCell = getCase(x - 1, y);
-//     selectedCell.classList.add("clickable");
-//     selectedCell.innerHTML = "left";
-//     selectedCell.addEventListener("click", () => caseTrigger("left"));
-//   }
-//   if (x < 4 && window.board[y][x + 1] != 2) {
-//     const selectedCell = getCase(x + 1, y);
-//     selectedCell.classList.add("clickable");
-//     selectedCell.innerHTML = "right";
-//     selectedCell.addEventListener("click", () => caseTrigger("right"));
-//   }
-//   if (y > 0 && window.board[y - 1][x]) {
-//     const selectedCell = getCase(x, y - 1);
-//     selectedCell.classList.add("clickable");
-//     selectedCell.innerHTML = "up";
-//     selectedCell.addEventListener("click", () => caseTrigger("up"));
-//   }
-//   if (y < 4 && window.board[y + 1][x]) {
-//     const selectedCell = getCase(x, y + 1);
-//     selectedCell.classList.add("clickable");
-//     selectedCell.innerHTML = "down";
-//     selectedCell.addEventListener("click", () => caseTrigger("down"));
-//   }
-// }
-
 function placePlayer(player, [x, y]) {
   const boardCase = getCase(x, y);
   boardCase.innerText = player;
