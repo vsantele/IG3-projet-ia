@@ -1,19 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-  <h1 class="title content has-text-centered" input type="text">{% block title %}SplatAI {% endblock %} </h1>
+<div class="container m-4">
+  <h1 class="title has-text-centered" input type="text">{% block title %}SplatAI {% endblock %} </h1>
   {% with messages = get_flashed_messages() %} {% if messages %}
   <div class="notification is-danger">{{ messages[0] }}</div>
   {% endif %} {% endwith %}
   {% if current_user.is_authenticated %}
-  <a class="button is-primary is-large" id="createGameBtn" href='{{url_for("game.game_create")}}'>
-    Create a Game
-  </a>
-  <a class="button is-primary is-large" id="displayStat" href='{{url_for("game.display_stat")}}'>Display Stat
-    User</a>
-  {% if is_admin %}
-  <a class="button is-primary is-large" href="{{url_for('admin.dashboard')}}">Admin Dashboard</a>
+  <div class="buttons are-medium">
+    <a class="button is-primary" id="createGameBtn" href='{{url_for("game.game_create")}}'>
+      Create a Game
+    </a>
+    <a class="button is-primary" id="displayStat" href='{{url_for("game.display_stat")}}'>Display Stat
+      User</a>
+    {% if is_admin %}
+    <a class="button is-primary" href="{{url_for('admin.dashboard')}}">Admin Dashboard</a>
+  </div>
 
   {% endif %}
   {% else %}
@@ -25,8 +27,13 @@
     Login
   </a>
   {% endif %}
-  <!-- <div class="content">
-    <h2 class="title"> Game Principle </h2>
-  </div> -->
+  <div class="content">
+    <h2 class="title"> How to play </h2>
+    <p>There are 2 players in the game, you are always player 1 in red. You start at the top left corner.</p>
+    <p>To win a game, you must own more squares than your opponent. To own a square, you must be the first to move onto
+      it. A taken square cannot be taken back by the oppenent.</p>
+    <p>You can move with the arrow at the right or bottom of the board depending on the size of your screen size, or
+      using directionnal arrow or WASD/ZQSD on your keyboard</p>
+  </div>
 </div>
 {% endblock %}

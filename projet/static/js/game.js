@@ -92,39 +92,46 @@ function countCases(winner, board) {
   return nbPoints;
 }
 
+function buttonMove(direction) {
+  caseTrigger(direction);
+}
+
 function reactOnEvent(event) {
-  const [x, y] = window.players[0];
   const key = event.code;
   switch (key) {
     case "ArrowLeft":
     case "KeyA":
       event.preventDefault();
-      if (x > 0 && window.board[y][x - 1] !== 2) {
-        caseTrigger("left");
-      }
+      caseTrigger("left");
+
       break;
     case "ArrowRight":
     case "KeyD":
       event.preventDefault();
-      if (x < 4 && window.board[y][x + 1] !== 2) {
-        caseTrigger("right");
-      }
+      caseTrigger("right");
+
       break;
     case "ArrowUp":
     case "KeyW":
       event.preventDefault();
-      if (y > 0 && window.board[y - 1][x] !== 2) {
-        caseTrigger("up");
-      }
+      caseTrigger("up");
+
       break;
     case "ArrowDown":
     case "KeyS":
       event.preventDefault();
-      if (y < 4 && window.board[y + 1][x] !== 2) {
-        caseTrigger("down");
-      }
+      caseTrigger("down");
       break;
   }
+}
+
+function isMovementValid(move) {
+  const [x, y] = window.players[0];
+  if (move === "left") return x > 0 && window.board[y][x - 1] !== 2;
+  if (move === "right") return x < 4 && window.board[y][x + 1] !== 2;
+  if (move === "up") return y > 0 && window.board[y - 1][x] !== 2;
+  if (move === "down") return y < 4 && window.board[y + 1][x] !== 2;
+  return false;
 }
 
 function endOfGame(body) {
@@ -160,6 +167,9 @@ async function caseTrigger(movement) {
   if (canSendMovement) {
     canSendMovement = false;
     try {
+      if (!isMovementValid(movement)) {
+        return;
+      }
       const response = await fetch(`/game/${window.gameID}`, {
         method: "POST",
         body: JSON.stringify({ movement }),

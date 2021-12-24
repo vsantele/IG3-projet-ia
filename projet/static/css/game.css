@@ -2,16 +2,13 @@ table {
   border-spacing: 0;
   border-collapse: collapse;
 }
-.container {
-  width: 555px;
-}
 td {
   border: 1px solid black;
   padding: 0px;
   width: 5rem;
   height: 5rem;
   font-weight: bold;
-  font-size: 48px;
+  font-size: 3rem;
 }
 
 .player1 {

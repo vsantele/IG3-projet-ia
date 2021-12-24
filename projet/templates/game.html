@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/game.css')}}" />
 {% endblock %}
 {%block content %}
-<div>
+<div class="container">
   <h1 class="title is-1">{%block title %} Game #{{ game_state.game_id }}{%endblock %}</h1>
   <h2 id="winner-subtitle" class="subtitle is-3">
     {% if game_state.winner == 1%}
@@ -16,19 +16,35 @@
   </h2>
   <h2 class="subtitle is-3"></h2>
   <div class="columns">
-    <div class="column is-narrow">{{board(5)}}</div>
-    {% if AI_info %}
-    <div class=" column">
-      <h2>Spec</h2>
-      <p>{{AI_info}}</p>
+    <div class="column is-narrow">
+      <div>{{board(5)}}</div>
+      <button class="button is-primary is-medium mt-2" id="hint" onclick=send_help()><span class="icon-text">
+          <span class="icon"><i class="fas fa-lightbulb"></i></span>
+          <span>Hint</span>
+        </span>
+      </button>
     </div>
-    {% endif %}
+    <div class="column is-one-third">
+      <div style="text-align: center;">
+        <button class="button is-large m-1" onclick="buttonMove('up')">
+          <span class="icon"><i class="fas fa-arrow-up"></i></span>
+        </button><br>
+        <button class="button is-large m-1" onclick="buttonMove('left')">
+          <span class="icon"><i class="fas fa-arrow-left"></i></span>
+        </button>
+        <button class="button is-large m-1" onclick="buttonMove('right')">
+          <span class="icon"><i class="fas fa-arrow-right"></i></span>
+        </button><br>
+        <button class="button is-large m-1" onclick="buttonMove('down')">
+          <span class="icon"><i class="fas fa-arrow-down"></i></span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 <div>
-  <button class="button is-primary is-large" id="hint" onclick=send_help()>Hint</button>
+
 </div>
- <!-- TODO arriver à mettre le meilleur prochain coup au joueur -->
 <!-- modal -->
 <div class="modal" id="winner-modal">
   <div class="modal-background"></div>
@@ -37,19 +53,19 @@
       <p><span id="winner"></span> With <span id="player-cells"></span> out of <span id="board-size"></span> cells</p>
       <p>
         <a class="button is-success" id="goHome" href="/">
-          <span class="icon-tet">
+          <span class="icon-text">
             <span class="icon"><i class="fas fa-home"></i></span>
             <span>Go To Home</span>
           </span>
         </a>
         <a class="button is-success" id="restart" href="/game">
-          <span class="icon-tet">
+          <span class="icon-text">
             <span class="icon"><i class="fas fa-redo"></i></span>
             <span>New Game</span>
           </span>
         </a>
         <button class="button" id="view-board">
-          <span class="icon-tet">
+          <span class="icon-text">
             <span class="icon"><i class="fas fa-border-all"></i></span>
             <span>Show Board</span>
           </span>
