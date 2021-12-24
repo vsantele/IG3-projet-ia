@@ -6,7 +6,13 @@
       Start training
     </button>
     <div>
-      <input id="nbGameTrain" class="input is-large" type="number" value="1000" placeholder="Number of game" />
+      <input
+        id="nbGameTrain"
+        class="input is-large"
+        type="number"
+        value="1000"
+        placeholder="Number of game"
+      />
     </div>
   </div>
   <div class="column is-one-fifth m-2">
@@ -14,7 +20,13 @@
       Start testing
     </button>
     <div>
-      <input id="nbGameTest" class="input is-large" type="number" value="100" placeholder="Number of game" />
+      <input
+        id="nbGameTest"
+        class="input is-large"
+        type="number"
+        value="100"
+        placeholder="Number of game"
+      />
     </div>
   </div>
   <div class="column is-one-fifth m-2">
@@ -22,7 +34,12 @@
   </div>
 </div>
 <p class="mt-3">
-  <progress id="testProgress" class="progress is-success" value="0" max="100"></progress>
+  <progress
+    id="testProgress"
+    class="progress is-success"
+    value="0"
+    max="100"
+  ></progress>
 </p>
 <p id="result" class="is-size-3"></p>
 {% endblock %} {% block js %}
@@ -54,7 +71,7 @@
   const startTraining = document.getElementById("startTraining");
   const resultDiv = document.getElementById("result");
   startTraining.addEventListener("click", async function () {
-    controller = new AbortController()
+    controller = new AbortController();
     startTesting.disabled = true;
     document.getElementById("nbGameTrain").disabled = true;
     document.getElementById("nbGameTest").disabled = true;
@@ -96,7 +113,7 @@
     document.getElementById("stop").classList.toggle("is-hidden", true);
   });
   startTesting.addEventListener("click", async function () {
-    controller = new AbortController()
+    controller = new AbortController();
     startTraining.disabled = true;
     document.getElementById("nbGameTrain").disabled = true;
     document.getElementById("nbGameTest").disabled = true;
