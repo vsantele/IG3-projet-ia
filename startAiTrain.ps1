@@ -1,4 +1,4 @@
-$NbProcess = @(docker compose ps --quiet).Count
+$NbProcess = @(docker compose ps --quiet --status running).Count
 if ($NbProcess -ne 3) {
     Write-Host "App not launched"
     docker compose up -d
