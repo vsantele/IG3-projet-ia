@@ -56,6 +56,7 @@
   startTraining.addEventListener("click", async function () {
     controller = new AbortController()
     startTesting.disabled = true;
+    startTraining.disabled = true;
     document.getElementById("nbGameTrain").disabled = true;
     document.getElementById("nbGameTest").disabled = true;
     document.getElementById("stop").classList.toggle("is-hidden", false);
@@ -70,11 +71,6 @@
       const result = await readAllChunks(body, nbGame);
       resultDiv.innerHTML = result;
     } catch (e) {
-      document.getElementById("stop").classList.toggle("is-hidden", true);
-      startTesting.disabled = false;
-      document.getElementById("nbGameTrain").disabled = false;
-      document.getElementById("nbGameTest").disabled = false;
-
       if (e.name === "AbortError") {
         bulmaToast.toast({
           message: "Training Canceled",
@@ -88,16 +84,19 @@
           position: "top-center",
         });
       }
+    } finally {
+      startTesting.disabled = false;
+      startTesting.startTraining = false;
+      document.getElementById("nbGameTrain").disabled = false;
+      document.getElementById("nbGameTest").disabled = false;
+      document.getElementById("stop").classList.toggle("is-hidden", true);
     }
 
-    startTesting.disabled = false;
-    document.getElementById("nbGameTrain").disabled = false;
-    document.getElementById("nbGameTest").disabled = false;
-    document.getElementById("stop").classList.toggle("is-hidden", true);
   });
   startTesting.addEventListener("click", async function () {
     controller = new AbortController()
     startTraining.disabled = true;
+    startTesting.disabled = true;
     document.getElementById("nbGameTrain").disabled = true;
     document.getElementById("nbGameTest").disabled = true;
     document.getElementById("stop").classList.toggle("is-hidden", false);
@@ -127,12 +126,13 @@
           position: "top-center",
         });
       }
+    } finally {
+      startTraining.disabled = false;
+      startTesting.disabled = false;
+      document.getElementById("nbGameTrain").disabled = false;
+      document.getElementById("nbGameTest").disabled = false;
+      document.getElementById("stop").classList.toggle("is-hidden", true);
     }
-
-    startTraining.disabled = false;
-    document.getElementById("nbGameTrain").disabled = false;
-    document.getElementById("nbGameTest").disabled = false;
-    document.getElementById("stop").classList.toggle("is-hidden", true);
   });
 
   document.getElementById("stop").addEventListener("click", function () {
