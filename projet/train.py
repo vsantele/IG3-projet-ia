@@ -32,7 +32,7 @@ def train_ai(n_games=1000):
         game = Game()
         db.session.add(game)
         db.session.commit()
-        lg.info("Game {} started".format(game.id))
+        lg.info("Game {}/{} started".format(x + 1, n_games))
         nb_turn = 0
         while not game.is_finished:
             try:
@@ -46,10 +46,9 @@ def train_ai(n_games=1000):
         update_game_finished(game, 2)
         update_epsilon()
         update_discount_factor()
-        lg.info(game.winner)
-        lg.info("Game {} finished in {} turns".format(game.id, nb_turn))
+        lg.info(f"Game {game.id} finished in {nb_turn} turns! Winner: {game.winner}")
         lg.info(info())
-        lg.info("\n" + beautify_board(game.board_array))
+        # lg.info("\n" + beautify_board(game.board_array))
         db.session.commit()
         yield f"Game {x+1}/{n_games} finished in {nb_turn} turns. Winner is {game.winner} | {info()}\n"
     set_parameters("play")
@@ -88,7 +87,7 @@ def test_ai(n_games=100):
         game = Game()
         db.session.add(game)
         db.session.commit()
-        lg.info("Game {}/{} started".format(x + 1, n_games))
+        lg.info(f"Game {x + 1}/{n_games} started")
         while not game.is_finished:
             try:
                 game.move(get_move_random(game, 1), 1)
@@ -96,7 +95,8 @@ def test_ai(n_games=100):
             except GameFinishedException:
                 break
         update_game_finished(game, 2)
-        lg.info("\n" + beautify_board(game.board_array))
+        lg.info(f"Game {x + 1}/{n_games} finished! Winner: {game.winner}")
+        # lg.info("\n" + beautify_board(game.board_array))
         yield f"{x+1}\n"
         db.session.commit()
         if game.winner == 2:
