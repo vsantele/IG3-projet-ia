@@ -30,7 +30,16 @@ app.config.update(
 )
 
 if app.config["ENV"] == "development":
-    lg.basicConfig(level=lg.DEBUG)
+    lg.basicConfig(
+        level=lg.DEBUG,
+        format="%(asctime)s|%(levelname)s: %(message)s",
+    )
+else:
+    lg.basicConfig(
+        level=lg.INFO,
+        filename="./data/splatai.log",
+        format="%(asctime)s|%(levelname)s: %(message)s",
+    )
 
 # IMPORT BLUEPRINT AND REGISTER
 

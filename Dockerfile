@@ -1,6 +1,6 @@
 FROM python:3.8.12-buster
 WORKDIR /app
-RUN pip install --no-cache-dir mariadb
+RUN pip install --no-cache-dir mariadb gevent
 COPY ./requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir data
