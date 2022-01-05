@@ -46,7 +46,9 @@ def train_ai(n_games=1000):
         update_game_finished(game, 2)
         update_epsilon()
         update_discount_factor()
-        lg.info(f"Game {game.id} finished in {nb_turn} turns! Winner: {game.winner}")
+        lg.info(
+            f"Game  {x+1}/{n_games} finished in {nb_turn} turns! Winner: {game.winner}"
+        )
         lg.info(info())
         # lg.info("\n" + beautify_board(game.board_array))
         db.session.commit()
