@@ -27,8 +27,6 @@
 <p id="result" class="is-size-3"></p>
 {% endblock %} {% block js %}
 <script>
-  const headers = new Headers();
-  headers.append('accept-encoding', 'identity');
   let controller;
   const testProgress = document.getElementById("testProgress");
   const n_games_test = 10;
@@ -67,7 +65,7 @@
     try {
       const res = await fetch(
         "{{url_for('admin.start_train')}}?n_games=" + nbGame,
-        { signal: controller.signal, headers }
+        { signal: controller.signal }
       );
       const body = res.body;
       const result = await readAllChunks(body, nbGame);
@@ -108,7 +106,7 @@
     try {
       const res = await fetch(
         "{{url_for('admin.start_test')}}?n_games=" + nbGame,
-        { signal: controller.signal, headers }
+        { signal: controller.signal }
       );
       const body = res.body;
       const result = await readAllChunks(body, nbGame);
